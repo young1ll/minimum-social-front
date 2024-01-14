@@ -14,16 +14,20 @@ import { SignInForm } from './signin-form';
 /**
  * SignIn Page #6
  *
+ * @description
+ * SignIn Page는 SignUp Page와 달리 Form 내부에서 SignIn 실행
  */
 const SigninPage = () => {
   return (
     <>
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle className="tw-h-8 tw-flex tw-gap-2 tw-items-center">
+          Sign In
+        </CardTitle>
         <CardDescription>Welcome to minimum-social</CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="tw-h-[410px] tw-flex tw-flex-col tw-justify-between">
         <SignInForm />
 
         <Divider lineProps={{ color: 'zinc' }}>
@@ -39,9 +43,9 @@ const SigninPage = () => {
         <p className="tw-text-base tw-text-gray-500">
           Don&apos;t have an account?{' '}
           <Link
-            href={'/signin'}
+            href={'/signup'}
             className="tw-underline hover:tw-font-semibold">
-            Sign In
+            Sign Up
           </Link>
         </p>
       </CardContent>

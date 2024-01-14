@@ -11,9 +11,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
+export type SubmitSigninSchema = z.infer<
+  typeof signinSchema | typeof signinSchema
+>;
 
 const signinSchema = z.object({
   email: z
@@ -29,7 +33,7 @@ const signinSchema = z.object({
     }),
 });
 
-export const SignInForm = ({}: {}) => {
+export const SignInForm = () => {
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
     defaultValues: {
@@ -38,7 +42,26 @@ export const SignInForm = ({}: {}) => {
     },
   });
 
-  const signinProceeding = (values: z.infer<typeof signinSchema>) => {};
+  const signinProceeding = async (values: z.infer<typeof signinSchema>) => {
+    console.log({ messages: 'entered values', values });
+    try {
+      const response = await signIn('credentials', {
+        redirect: false,
+        ...values,
+        callbackUrl: '/',
+      });
+
+      if (!response?.error) {
+        console.log({
+          response: { message: 'Sign in successful', callback: '/' },
+        });
+      } else {
+        console.log({ response: { message: 'Sign in failed', callback: '/' } });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -70,11 +93,7 @@ export const SignInForm = ({}: {}) => {
             />
           ))}
           <Button className="tw-mt-4 tw-w-full tw-flex tw-gap-4" type="submit">
-            {'Sign In'}
-            <ArrowRight
-              size={'16'}
-              // hover 시 표시
-            />
+            Sign In
           </Button>
         </form>
       </Form>

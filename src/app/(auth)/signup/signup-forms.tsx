@@ -14,12 +14,7 @@ import { ArrowRight } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
-import {
-  handleSubmitDataType,
-  handleSubmitFinallyType,
-  handleSubmitProceedType,
-} from './page';
+import { SignUpFormProps, handleSubmitFinallyType } from '../-form-types';
 
 /**
  * SignUp Form #2 #4
@@ -38,7 +33,7 @@ import {
  * @description
  * 사용자 입력과 관련된 내용만 담당하며, submit 이외의 로직은 외부(page)에서 수행
  */
-export type SubmitSchema = z.infer<
+export type SubmitSignupSchema = z.infer<
   typeof firstFormSchema | typeof secondFormSchema
 >;
 
@@ -57,20 +52,21 @@ const firstFormSchema = z.object({
     .email({ message: 'Invalid email address' }),
 });
 
+/**
+ * ===============================================================
+ * = First Form: password, check password
+ * ===============================================================
+ */
 export const FirstForm = ({
   handleSubmitProceed,
   onSubmitData,
   submitData,
-}: {
-  handleSubmitProceed: handleSubmitProceedType;
-  onSubmitData: handleSubmitDataType;
-  submitData: SubmitSchema;
-}) => {
+}: SignUpFormProps) => {
   const form = useForm<z.infer<typeof firstFormSchema>>({
     resolver: zodResolver(firstFormSchema),
     defaultValues: {
-      username: submitData['username' as keyof SubmitSchema],
-      email: submitData['email' as keyof SubmitSchema],
+      username: submitData['username' as keyof SubmitSignupSchema],
+      email: submitData['email' as keyof SubmitSignupSchema],
     },
   });
 
@@ -143,13 +139,17 @@ const secondFormSchema = z
       });
     }
   });
+
+/**
+ * ===============================================================
+ * = Second Form: password, check password
+ * ===============================================================
+ */
 export const SecondForm = ({
   onSubmitData,
   submitData,
   submitFinally,
-}: {
-  onSubmitData: handleSubmitDataType;
-  submitData: SubmitSchema;
+}: Omit<SignUpFormProps, 'handleSubmitProceed'> & {
   submitFinally: handleSubmitFinallyType;
 }) => {
   const form = useForm<z.infer<typeof secondFormSchema>>({
@@ -165,9 +165,9 @@ export const SecondForm = ({
       onSubmitData(values);
 
       if (
-        submitData['username' as keyof SubmitSchema] &&
-        submitData['email' as keyof SubmitSchema] &&
-        submitData['password' as keyof SubmitSchema]
+        submitData['username' as keyof SubmitSignupSchema] &&
+        submitData['email' as keyof SubmitSignupSchema] &&
+        submitData['password' as keyof SubmitSignupSchema]
       ) {
         submitFinally();
       }

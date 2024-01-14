@@ -1,4 +1,4 @@
-export const siteConfig = {
+export default {
   name: 'minimum-social',
   url: 'https://minimum-social.com',
   ogImage: '',
@@ -9,5 +9,3 @@ export const siteConfig = {
     github: '',
   },
 };
-
-export type SiteConfig = typeof siteConfig;

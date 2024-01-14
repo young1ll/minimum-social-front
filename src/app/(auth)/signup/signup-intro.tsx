@@ -8,18 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { handleSubmitDataType, handleSubmitProceedType } from './page';
-import { FirstForm, SubmitSchema } from './signup-forms';
+import { SignUpFormProps } from '../-form-types';
+import { FirstForm } from './signup-forms';
 
 const SignupIntro = ({
   handleSubmitProceed,
   onSubmitData,
   submitData,
-}: {
-  handleSubmitProceed: handleSubmitProceedType;
-  onSubmitData: handleSubmitDataType;
-  submitData: SubmitSchema;
-}) => {
+}: SignUpFormProps) => {
   return (
     <>
       <CardHeader>

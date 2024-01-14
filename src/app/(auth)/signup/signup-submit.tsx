@@ -5,29 +5,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Box } from '@/components/ui/box';
-import Divider from '@/components/ui/divider';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import {
-  handleSubmitDataType,
-  handleSubmitFinallyType,
-  handleSubmitProceedType,
-} from './page';
-
-import { SecondForm, SubmitSchema } from './signup-forms';
+import { SecondForm } from './signup-forms';
+import { SignUpFormProps, handleSubmitFinallyType } from '../-form-types';
 
 const SignupSubmit = ({
   handleSubmitProceed,
   onSubmitData,
   submitData,
   submitFinally,
-}: {
-  handleSubmitProceed: handleSubmitProceedType;
-  onSubmitData: handleSubmitDataType;
-  submitData: SubmitSchema;
-  submitFinally: handleSubmitFinallyType;
-}) => {
+}: SignUpFormProps & { submitFinally: handleSubmitFinallyType }) => {
   return (
     <>
       <CardHeader>

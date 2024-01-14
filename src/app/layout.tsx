@@ -1,14 +1,14 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
-import { ThemeProvider } from '@/theme/theme-provider';
 import { cn } from '@/lib/utils';
+import { siteConfig } from '@/config';
+import Providers from './providers';
 
 // Root Metadata for all #1
 export const metadata: Metadata = {
-  title: 'minimum-social',
-  description:
-    'Minimum-Social is a streamlined social media platform with a focus on simplicity, offering users a distraction-free experience, and featuring a core functionality of a simple voting system.',
+  title: siteConfig.name,
+  description: siteConfig.description,
 };
 
 export const fontSans = FontSans({
@@ -28,9 +28,14 @@ export default function RootLayout({
           'tw-min-h-screen tw-bg-background tw-font-sans tw-antialiased',
           fontSans.variable
         )}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Providers
+          themeProviderProps={{
+            attribute: 'class',
+            defaultTheme: 'system',
+            enableSystem: true,
+          }}>
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

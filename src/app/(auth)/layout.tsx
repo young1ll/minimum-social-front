@@ -1,7 +1,7 @@
 import { Box } from '@/components/ui/box';
 import { Card, CardFooter } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
-import { siteConfig } from '@/config/site';
+import { siteConfig } from '@/config';
 import Link from 'next/link';
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
