@@ -31,6 +31,10 @@ const SignupPage = () => {
     setSubmitData((prev) => ({ ...prev, ...data }));
   };
 
+  /**
+   * Submit Finally: submitData
+   * 최종적으로 submitData를 server로 제출
+   */
   const handleSubmitFinally = () => {
     console.log(submitData); // 데이터는 submitData를 사용
   };
