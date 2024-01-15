@@ -1,8 +1,9 @@
-'use client';
-import { useState } from 'react';
-import SignupIntro from './signup-intro';
-import SignupSubmit from './signup-submit';
-import { SubmitSignupSchema } from './signup-forms';
+"use client";
+import { useState } from "react";
+import SignupIntro from "./signup-intro";
+import SignupSubmit from "./signup-submit";
+import { SubmitSignupSchema } from "./signup-forms";
+import { cognitoSignup } from "@/lib/cognito/cognito-signup";
 
 /**
  * SignupPage #2 #4
@@ -35,8 +36,21 @@ const SignupPage = () => {
    * Submit Finally: submitData
    * 최종적으로 submitData를 server로 제출
    */
-  const handleSubmitFinally = () => {
-    console.log(submitData); // 데이터는 submitData를 사용
+  const handleSubmitFinally = async () => {
+    console.log("Signup Submit Data: ", submitData); // 데이터는 submitData를 사용
+    try {
+      const resultData = {
+        // username: submitData["username" as keyof SubmitSignupSchema], // db에 저장
+        email: submitData["email" as keyof SubmitSignupSchema],
+        password: submitData["password" as keyof SubmitSignupSchema],
+      };
+      console.log("resultData: ", resultData);
+
+      const result = await cognitoSignup(resultData);
+      console.log({ message: "Welcome!", result });
+    } catch (error) {
+      console.log("Error during handleSubmitFinally:", error);
+    }
   };
   return (
     <>
