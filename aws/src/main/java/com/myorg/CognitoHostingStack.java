@@ -86,7 +86,7 @@ public class CognitoHostingStack extends Stack {
                     put("version", "1.0");
                     put("applications", List.of(new LinkedHashMap<>() {
                       {
-                        put("appRoot", "next-app"); // NOTE: mono-repo
+                        put("appRoot", "frontend"); // NOTE: mono-repo root
                         put("frontend", new LinkedHashMap<>() {
                           {
                             put("buildPath", "frontend");
