@@ -89,17 +89,24 @@ public class CognitoHostingStack extends Stack {
                         put("appRoot", "next-app"); // NOTE: mono-repo
                         put("frontend", new LinkedHashMap<>() {
                           {
-                            put("buildPath", "next-app");
+                            put("buildPath", "frontend");
                             put("phases", new LinkedHashMap<>() {
                               {
                                 put("preBuild", new LinkedHashMap<>() {
                                   {
-                                    put("commands", List.of("npm ci")); // clean install
+                                    put("commands", List.of("npm -g install pnpm"));
+                                    // clean install
                                   }
                                 });
                                 put("build", new LinkedHashMap<>() {
                                   {
-                                    put("commands", List.of("npm run build",
+                                    put("commands", List.of(
+                                        // node_modules hoisted
+                                        "pnpm config set node-linker hoisted",
+                                        // packages 설치
+                                        "pnpm i",
+                                        // build
+                                        "pnpm --filter frontend build",
                                         "echo \"NEXTAUTH_SECRET=NL0O++ZnW42XdHgLrsxMqvT20M08VkZgPmxfMeAP260=\" >> .env.production",
                                         """
                                                 if ["$AWS_BRANCH" = "main"]; then
@@ -120,7 +127,7 @@ public class CognitoHostingStack extends Stack {
                             });
                             put("artifacts", new LinkedHashMap<>() {
                               {
-                                put("baseDirectory", ".next");
+                                put("baseDirectory", "frontend/.next");
                                 put("files", List.of("**/*"));
                               }
                             });
@@ -144,9 +151,9 @@ public class CognitoHostingStack extends Stack {
     amplifyApp.addEnvironment("COGNITO_USER_POOL_ID", userPool.getUserPoolId())
         .addEnvironment("COGNITO_APP_CLIENT_ID", client.getUserPoolClientId())
         .addEnvironment("_CUSTOM_IMAGE", "amplify:al2023") // nextjs 14
-        .addEnvironment("_LIVE_UPDATEs",
+        .addEnvironment("_LIVE_UPDATES",
             "[{\"pkg\":\"next-version\",\"type\":\"internal\",\"version\":\"latest\"}]")
-        .addEnvironment("AMPLIFY_MONOREPO_APP", "next-app"); // mono-repo
+        .addEnvironment("AMPLIFY_MONOREPO_APP_ROOT", "frontend"); // mono-repo
 
     Branch main = amplifyApp.addBranch("main", BranchOptions.builder().stage("PRODUCTION").build());
     Branch develop = amplifyApp.addBranch("develop",
