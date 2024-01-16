@@ -1,6 +1,5 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/config';
 import Providers from './providers';
@@ -10,11 +9,6 @@ export const metadata: Metadata = {
   title: siteConfig.name,
   description: siteConfig.description,
 };
-
-export const fontSans = FontSans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
 
 export default function RootLayout({
   children,
@@ -26,7 +20,7 @@ export default function RootLayout({
       <body
         className={cn(
           'tw-min-h-screen tw-bg-background tw-font-sans tw-antialiased',
-          fontSans.variable
+          // fontSans.className
         )}>
         <Providers
           themeProviderProps={{
