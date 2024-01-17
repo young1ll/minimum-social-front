@@ -4,6 +4,7 @@ import SignupIntro from "./signup-intro";
 import SignupSubmit from "./signup-submit";
 import { SubmitSignupSchema } from "./signup-forms";
 import { cognitoSignup } from "@/lib/cognito/cognito-signup";
+import { axios_user } from "@/lib/api";
 
 /**
  * SignupPage #2 #4
@@ -39,15 +40,26 @@ const SignupPage = () => {
   const handleSubmitFinally = async () => {
     console.log("Signup Submit Data: ", submitData); // 데이터는 submitData를 사용
     try {
-      const resultData = {
-        // username: submitData["username" as keyof SubmitSignupSchema], // db에 저장
+      const submitCognito = {
+        username: submitData["username" as keyof SubmitSignupSchema], // db에 저장
         email: submitData["email" as keyof SubmitSignupSchema],
         password: submitData["password" as keyof SubmitSignupSchema],
       };
-      console.log("resultData: ", resultData);
+      const result = await cognitoSignup(submitCognito);
+      console.log({ message: "Welcome!", result, submitCognito });
 
-      const result = await cognitoSignup(resultData);
-      console.log({ message: "Welcome!", result });
+      const submitServer = {
+        pk: result.UserSub,
+        email: submitCognito.email,
+        username: submitCognito.username,
+        profileImage: "",
+        phone: "",
+        bio: "",
+        darkmode: false,
+      };
+
+      const serverResult = await axios_user.post("/user", submitServer);
+      console.log(serverResult);
     } catch (error) {
       console.log("Error during handleSubmitFinally:", error);
     }

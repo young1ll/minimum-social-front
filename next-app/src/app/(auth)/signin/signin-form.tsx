@@ -38,7 +38,7 @@ export const SignInForm = () => {
       const result = await signIn("credentials", { redirect: false, callbackUrl: "/", email, password });
 
       if (result?.ok) {
-        console.log("Login Success");
+        console.log("Login Success", result);
       } else {
         console.log("Login Failed", result?.error);
       }

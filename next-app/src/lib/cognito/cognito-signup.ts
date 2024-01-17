@@ -1,9 +1,11 @@
 "use server";
 
-import { CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js";
-import { createUserPool } from "./cognito-userpool";
+import { SignUpCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { axios_user } from "../api";
+import { cognitoClient } from "./cognito-userpool";
 
 interface cognitoSignupProps {
+  username: string;
   email: string;
   password: string;
   // confirmPassword: string;
@@ -11,29 +13,46 @@ interface cognitoSignupProps {
 
 /**
  * Sign Up Method #2 #5
+ * 회원 가입 시 cognito userpool에 사용자 저장
+ * 회원 가입 시 userSub을 pk로 server에 해당 사용자 저장 요청
  */
-export const cognitoSignup = async ({ email, password }: cognitoSignupProps) => {
-  return new Promise(async (resolve, reject) => {
-    const userPool = await createUserPool();
+export const cognitoSignup = async ({ username, email, password }: cognitoSignupProps) => {
+  const client = cognitoClient();
 
-    const attributeList = [
-      new CognitoUserAttribute({ Name: "email", Value: email }),
-      // new CognitoUserAttribute({ Name: "email", Value: email }),
-    ];
-
-    userPool.signUp(email, password, attributeList, [], (err, result) => {
-      if (err) {
-        console.log("Cognito Registration Failure: ", err);
-        return err || "Cognito Registration Failed!";
-      }
-
-      console.log("Cognito Registration Success: ", result);
-      const response = {
-        userConfirmed: result?.userConfirmed,
-        userSub: result?.userSub,
-      };
-
-      // save cognito user in database
-    });
+  const command = new SignUpCommand({
+    ClientId: process.env.COGNITO_APP_CLIENT_ID,
+    Username: email,
+    Password: password,
+    // UserAttributes: [{ Name: "username", Value: username }],
   });
+  const result = await client.send(command);
+
+  console.log("CognitoSignupResult", result);
+
+  return result;
+  // return new Promise(async (resolve, reject) => {
+
+  //   userPool.signUp(email, password, attributeList, [], (err, result) => {
+  //     if (err) {
+  //       console.log("Cognito Registration Failure: ", err);
+  //       return err || "Cognito Registration Failed!";
+  //     }
+
+  //     console.log("Cognito Registration Success: ", result);
+  //     const response = {
+  //       userConfirmed: result?.userConfirmed,
+  //       userSub: result?.userSub,
+  //     };
+
+  //     // save cognito user in database with userSub
+  //     if (response) {
+  //       const { userConfirmed, userSub } = response;
+
+  //       // 인증 여부, pk
+  //       const serverResponse = axios_user.post("/user", { userConfirmed, userSub });
+
+  //       resolve(serverResponse);
+  //     }
+  //   });
+  // });
 };

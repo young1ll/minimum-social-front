@@ -3,8 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import CognitoProvider from "next-auth/providers/cognito";
 import { axios_user } from "./api";
-import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
-import { createUserPool } from "./cognito/cognito-userpool";
+import { AdminGetUserCommand, InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { cognitoClient } from "./cognito/cognito-userpool";
 
 /**
  * NextAuth Options #2 #8 #9
@@ -41,74 +41,79 @@ export const authOptions: NextAuthOptions = {
        *   - { id: string, username: string, email: string, accessToken: string }
        * */
       async authorize(credentials) {
+        const client = cognitoClient();
+
         try {
-          if (!credentials || !credentials.email || !credentials.password) {
+          const response = await client.send(
+            new InitiateAuthCommand({
+              AuthFlow: "USER_PASSWORD_AUTH",
+              ClientId: process.env.COGNITO_APP_CLIENT_ID,
+              AuthParameters: {
+                USERNAME: credentials?.email as string,
+                PASSWORD: credentials?.password as string,
+              },
+            }),
+          );
+
+          const serverResponse = await axios_user.get(`/user/${credentials?.email}`);
+          console.log(serverResponse.headers);
+          console.log(serverResponse.data.user);
+
+          if (response.AuthenticationResult) {
+            const { IdToken, AccessToken, RefreshToken, ExpiresIn } = response.AuthenticationResult;
+            const { pk, email, username, darkmode } = serverResponse.data.user[0];
+
+            return {
+              id: pk,
+              username,
+              email,
+              darkmode,
+              token: {
+                idToken: IdToken as string,
+                accessToken: AccessToken as string,
+                refreshToken: RefreshToken as string,
+                expiresIn: ExpiresIn as number,
+              },
+            };
+          } else {
             throw new Error("Invalid credentials");
           }
-
-          const userPool = await createUserPool();
-          const cognitoUser = new CognitoUser({
-            Username: credentials.email,
-            Pool: userPool,
-          });
-
-          const authenticationDetails = new AuthenticationDetails({
-            Username: credentials.email,
-            Password: credentials.password,
-          });
-
-          // const { status, data } = await axios_user.get('/');
-          //TODO:상세정보: axios_user가 실제 서버와의 연결로 반환되는 내용 처리
-
-          // RETURN: Promise
-          return new Promise((resolve, reject) => {
-            cognitoUser.authenticateUser(authenticationDetails, {
-              onSuccess: (result) => {
-                console.log("Cognito Login Success: ", result);
-
-                const payload = result.getIdToken().payload;
-
-                resolve({
-                  id: result.getIdToken().payload.email,
-                  email: result.getIdToken().payload.email,
-                });
-              },
-
-              onFailure: (err) => {
-                console.log("Cognito Login Failure: ", err);
-
-                if (err.code === "UserNotConfirmedException") {
-                  resolve({ id: credentials.email, email: "Not Verified" });
-                }
-
-                reject(new Error(err.message) || "Failed to authenticate user");
-              },
-            });
-          });
         } catch (error) {
-          console.log(error);
-          throw new Error(error as string);
+          console.error(error);
+          throw new Error("Invalid credentials");
         }
       },
     }),
-    // CognitoProvider({
-
-    // }),
-    // GithubProvider({
-    //   clientId: authConfig.github.clientId!,
-    //   clientSecret: authConfig.github.clientSecret!,
-    // }),
-    // ...add more providers here
   ],
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.username = user.username;
+        token.email = user.email;
+        token.darkmode = user.darkmode;
+
+        token.idToken = user.token.idToken;
+        token.accessToken = user.token.accessToken;
+        token.refreshToken = user.token.refreshToken;
+        token.expiresIn = user.token.expiresIn;
+      }
+      return token;
+    },
     session({ session, token }) {
       return {
         ...session,
         user: {
           ...session.user,
-          // role: token.role,
-          // accessToken: token.accessToken,
+          id: token.id,
+          username: token.username,
+          email: token.email,
+          darkmode: token.darkmode,
         },
+        idToken: token.idToken,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+        expiresIn: token.expiresIn,
       };
     },
   },
