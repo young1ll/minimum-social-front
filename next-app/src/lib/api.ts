@@ -1,3 +1,4 @@
+import config from "@/config";
 import axios, { AxiosRequestHeaders } from "axios";
 import { getSession } from "next-auth/react";
 
@@ -7,7 +8,7 @@ import { getSession } from "next-auth/react";
 export const axios_user = axios.create({
   // config.apiProtocol+config.apiHost
   // backend server
-  baseURL: "http://localhost:3000/api",
+  baseURL: config.apiProtocol! + config.apiHost,
   timeout: 10000,
   timeoutErrorMessage: "Request Timeout",
   headers: {

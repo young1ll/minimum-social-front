@@ -11,7 +11,9 @@ declare module "next-auth" {
       expiresIn: number;
     };
   }
-  interface Session extends DefaultSession {}
+  interface Session extends DefaultSession {
+    user: User & DefaultSession["user"];
+  }
 }
 
 // declare module "next-auth/jwt" {
@@ -22,3 +24,17 @@ declare module "next-auth" {
 // }
 
 export enum Role {}
+
+export interface UserProps {
+  id: string;
+  username: string;
+  email: string;
+  darkmode: boolean;
+  profileImage: string;
+  token: {
+    idToken: string;
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+}

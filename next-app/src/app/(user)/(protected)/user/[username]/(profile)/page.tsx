@@ -1,4 +1,4 @@
-import { Container } from '@/components/ui/container';
+import { Container } from "@/components/ui/container";
 
 /**
  * ProfilePage #7
@@ -12,7 +12,11 @@ interface ProfilePageProps {
 const ProfilePage = (props: ProfilePageProps) => {
   const { username } = props.params;
 
-  return <Container>ProfilePage Username: {username}</Container>;
+  return (
+    <Container className="tw-mx-0 tw-px-0 md:tw-px-4" innerContainerProps={{ className: "tw-justify-start" }}>
+      ProfilePage Username: {username}
+    </Container>
+  );
 };
 
 export default ProfilePage;

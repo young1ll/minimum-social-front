@@ -1,8 +1,10 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { cn } from '@/lib/utils';
-import { siteConfig } from '@/config';
-import Providers from './providers';
+import "./globals.css";
+import type { Metadata } from "next";
+import { cn } from "@/lib/utils";
+import { siteConfig } from "@/config";
+import Providers from "./providers";
+import { Toaster } from "@/components/ui/toaster";
+import SiteHeader from "@/components/site-header";
 
 // Root Metadata for all #1
 export const metadata: Metadata = {
@@ -10,26 +12,28 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          'tw-min-h-screen tw-bg-background tw-font-sans tw-antialiased',
+          "tw-min-h-screen tw-bg-background tw-font-sans tw-antialiased",
           // fontSans.className
-        )}>
+        )}
+      >
         <Providers
           themeProviderProps={{
-            attribute: 'class',
-            defaultTheme: 'system',
+            attribute: "class",
+            defaultTheme: "system",
             enableSystem: true,
-          }}>
-          {children}
+          }}
+        >
+          <div className="tw-relative tw-min-h-screen tw-flex tw-flex-col tw-bg-background">
+            <SiteHeader />
+            <main className="tw-p-2 tw-flex-1 tw-flex">{children}</main>
+          </div>
         </Providers>
+        <Toaster />
       </body>
     </html>
   );

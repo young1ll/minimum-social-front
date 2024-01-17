@@ -2,11 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
+import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export type SubmitSigninSchema = z.infer<typeof signinSchema | typeof signinSchema>;
 
@@ -22,6 +27,10 @@ const signinSchema = z.object({
 });
 
 export const SignInForm = () => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
     defaultValues: {
@@ -31,6 +40,7 @@ export const SignInForm = () => {
   });
 
   const signinProceeding = async (values: z.infer<typeof signinSchema>) => {
+    setIsLoading(true);
     const { email, password } = values;
     console.log({ messages: "entered values", values });
 
@@ -38,12 +48,18 @@ export const SignInForm = () => {
       const result = await signIn("credentials", { redirect: false, callbackUrl: "/", email, password });
 
       if (result?.ok) {
-        console.log("Login Success", result);
+        // console.log("Login Success", result);
+        toast({ variant: "success", title: "Login Success", description: "Login Success" });
       } else {
-        console.log("Login Failed", result?.error);
+        toast({ variant: "destructive", title: "Login Failed", description: result?.error });
+        // console.log("Login Failed", result?.error);
       }
+      setIsLoading(false);
+      router.push("/");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      setIsLoading(false);
+      toast({ variant: "destructive", title: "Login Failed", description: error });
     }
   };
 
@@ -51,27 +67,42 @@ export const SignInForm = () => {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(signinProceeding)}>
-          {Object.entries(signinSchema.shape).map(([key, value]) => (
-            <FormField
-              key={key}
-              control={form.control}
-              name={key as keyof z.infer<typeof signinSchema>}
-              render={({ field }) => {
-                let { value, ...rest } = field;
-                return (
-                  <FormItem>
-                    <FormLabel htmlFor={key}>{key.toUpperCase()}</FormLabel>
-                    <FormControl>
-                      <Input id={key} type="text" placeholder={key} value={value} {...rest} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-          ))}
+          <FormField
+            key={"email"}
+            control={form.control}
+            name={"email"}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel htmlFor={"email"}>{"Email"}</FormLabel>
+                  <FormControl>
+                    <Input id={"email"} type="email" placeholder={"Email"} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
+          <FormField
+            key={"password"}
+            control={form.control}
+            name={"password"}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel htmlFor={"password"}>{"Password"}</FormLabel>
+                  <FormControl>
+                    <PasswordInput id={"password"} placeholder={"Password"} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
           <Button className="tw-mt-4 tw-w-full tw-flex tw-gap-4" type="submit">
-            Sign In
+            {isLoading ? <Loader2 className="tw-animate-spin" /> : "Sign In"}
           </Button>
         </form>
       </Form>

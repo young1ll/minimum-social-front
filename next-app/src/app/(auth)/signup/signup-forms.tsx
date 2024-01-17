@@ -2,9 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
+import { toast } from "@/components/ui/use-toast";
+import { axios_user } from "@/lib/api";
+import { cognitoCheckUserPool } from "@/lib/cognito/cognito-signup";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SignUpFormProps, handleSubmitFinallyType } from "../-form-types";
@@ -46,6 +50,8 @@ const firstFormSchema = z.object({
  * ===============================================================
  */
 export const FirstForm = ({ handleSubmitProceed, onSubmitData, submitData }: SignUpFormProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof firstFormSchema>>({
     resolver: zodResolver(firstFormSchema),
     defaultValues: {
@@ -54,10 +60,26 @@ export const FirstForm = ({ handleSubmitProceed, onSubmitData, submitData }: Sig
     },
   });
 
-  const signupProceeding = (values: z.infer<typeof firstFormSchema>) => {
-    console.log(values);
+  const signupProceeding = async (values: z.infer<typeof firstFormSchema>) => {
+    // console.log(values);
+    setIsLoading(true);
     onSubmitData(values);
-    handleSubmitProceed(true);
+    console.log(submitData);
+    try {
+      // NOTE: userpool에서 email 조회
+      const checkEmailResult = await cognitoCheckUserPool({ email: submitData["email" as keyof SubmitSignupSchema] });
+      // TODO: user-server에서 username 조회: 예외 처리
+      const checkUsernameResult = await axios_user.get(`/user/${submitData["email" as keyof SubmitSignupSchema]}`);
+
+      handleSubmitProceed(true);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign Up Failed",
+        description: `Error: ${error}`,
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,11 +106,17 @@ export const FirstForm = ({ handleSubmitProceed, onSubmitData, submitData }: Sig
             />
           ))}
           <Button className="tw-mt-4 tw-w-full tw-flex tw-gap-4" type="submit">
-            {"Sign Up"}
-            <ArrowRight
-              size={"16"}
-              // hover 시 표시
-            />
+            {isLoading ? (
+              <Loader2 className="tw-animate-spin" />
+            ) : (
+              <>
+                {"Sign Up"}
+                <ArrowRight
+                  size={"16"}
+                  // hover 시 표시
+                />
+              </>
+            )}
           </Button>
         </form>
       </Form>
@@ -130,6 +158,8 @@ export const SecondForm = ({
 }: Omit<SignUpFormProps, "handleSubmitProceed"> & {
   submitFinally: handleSubmitFinallyType;
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof secondFormSchema>>({
     resolver: zodResolver(secondFormSchema),
     defaultValues: {
@@ -140,6 +170,8 @@ export const SecondForm = ({
 
   //TODO: event preventDefault()
   const signupProceed = (values: z.infer<typeof secondFormSchema>) => {
+    console.log(values);
+    setIsLoading(true);
     try {
       onSubmitData(values);
 
@@ -153,6 +185,8 @@ export const SecondForm = ({
     } catch (error) {
       // Handle error if onSubmitData fails
       console.error("Error during signupProceed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -190,7 +224,7 @@ export const SecondForm = ({
         />
 
         <Button type="submit" className="tw-mt-4 tw-w-full">
-          {"Submit"}
+          {isLoading ? <Loader2 className="tw-animate-spin" /> : "Submit"}
         </Button>
       </form>
     </Form>

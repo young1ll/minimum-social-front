@@ -5,6 +5,7 @@ import CognitoProvider from "next-auth/providers/cognito";
 import { axios_user } from "./api";
 import { AdminGetUserCommand, InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { cognitoClient } from "./cognito/cognito-userpool";
+import config from "@/config";
 
 /**
  * NextAuth Options #2 #8 #9
@@ -47,7 +48,7 @@ export const authOptions: NextAuthOptions = {
           const response = await client.send(
             new InitiateAuthCommand({
               AuthFlow: "USER_PASSWORD_AUTH",
-              ClientId: process.env.COGNITO_APP_CLIENT_ID,
+              ClientId: config.auth.cognito.clientId,
               AuthParameters: {
                 USERNAME: credentials?.email as string,
                 PASSWORD: credentials?.password as string,
@@ -56,11 +57,12 @@ export const authOptions: NextAuthOptions = {
           );
 
           const serverResponse = await axios_user.get(`/user/${credentials?.email}`);
-          console.log(serverResponse.headers);
-          console.log(serverResponse.data.user);
+          // console.log(serverResponse.headers);
+          // console.log(serverResponse.data.user);
 
           if (response.AuthenticationResult) {
             const { IdToken, AccessToken, RefreshToken, ExpiresIn } = response.AuthenticationResult;
+            // NOTE: 해당 값을 얻기 위해서는 반드시 서버에 데이터가 저장되어있어야 함
             const { pk, email, username, darkmode } = serverResponse.data.user[0];
 
             return {

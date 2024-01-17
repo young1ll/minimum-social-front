@@ -14,12 +14,12 @@ import { SignInForm } from "./signin-form";
 const SigninPage = () => {
   return (
     <>
-      <CardHeader>
+      <CardHeader className="tw-pb-0">
         <CardTitle className="tw-h-8 tw-flex tw-gap-2 tw-items-center">Sign In</CardTitle>
         <CardDescription>Welcome to minimum-social</CardDescription>
       </CardHeader>
 
-      <CardContent className="tw-h-[410px] tw-flex tw-flex-col tw-justify-between">
+      <CardContent className="tw-h-[450px] tw-flex tw-flex-col tw-justify-between">
         {/* Sign In Form */}
         <SignInForm />
 

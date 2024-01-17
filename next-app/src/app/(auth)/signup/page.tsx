@@ -5,6 +5,8 @@ import SignupSubmit from "./signup-submit";
 import { SubmitSignupSchema } from "./signup-forms";
 import { cognitoSignup } from "@/lib/cognito/cognito-signup";
 import { axios_user } from "@/lib/api";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 /**
  * SignupPage #2 #4
@@ -23,8 +25,12 @@ import { axios_user } from "@/lib/api";
  * 3. submit new user: send username, email, password
  */
 const SignupPage = () => {
+  const router = useRouter();
+
   const [submitProceed, setSubmitProceed] = useState(false);
   const [submitData, setSubmitData] = useState({} as SubmitSignupSchema);
+
+  const { toast } = useToast();
 
   const handleSubmitProceed = (toggle: boolean) => {
     setSubmitProceed(toggle);
@@ -38,15 +44,17 @@ const SignupPage = () => {
    * 최종적으로 submitData를 server로 제출
    */
   const handleSubmitFinally = async () => {
-    console.log("Signup Submit Data: ", submitData); // 데이터는 submitData를 사용
+    // console.log("Signup Submit Data: ", submitData); // 데이터는 submitData를 사용
     try {
       const submitCognito = {
         username: submitData["username" as keyof SubmitSignupSchema], // db에 저장
         email: submitData["email" as keyof SubmitSignupSchema],
         password: submitData["password" as keyof SubmitSignupSchema],
       };
+      console.log(submitCognito);
+
       const result = await cognitoSignup(submitCognito);
-      console.log({ message: "Welcome!", result, submitCognito });
+      // console.log({ message: "Welcome!", result, submitCognito });
 
       const submitServer = {
         pk: result.UserSub,
@@ -59,9 +67,22 @@ const SignupPage = () => {
       };
 
       const serverResult = await axios_user.post("/user", submitServer);
-      console.log(serverResult);
+
+      if (serverResult) {
+        toast({
+          // variant: "success",
+          title: "Welcome!",
+          description: "You have successfully signed up.",
+        });
+        router.push("/signin");
+      }
     } catch (error) {
-      console.log("Error during handleSubmitFinally:", error);
+      // console.log("Error during handleSubmitFinally:", error);
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: "Please try again.",
+      });
     }
   };
   return (
