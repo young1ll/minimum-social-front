@@ -12,6 +12,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { login } from "@/redux/features/auth-slice";
+import { getServerSession } from "next-auth";
 
 export type SubmitSigninSchema = z.infer<typeof signinSchema | typeof signinSchema>;
 
@@ -28,6 +32,7 @@ const signinSchema = z.object({
 
 export const SignInForm = () => {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
@@ -48,8 +53,20 @@ export const SignInForm = () => {
       const result = await signIn("credentials", { redirect: false, callbackUrl: "/", email, password });
 
       if (result?.ok) {
+        const session = await getServerSession();
+        const { id, username, email, darkmode } = session?.user;
+        dispatch(
+          login({
+            isAuthenticated: true,
+            id: id,
+            username: username,
+            email: email,
+            darkmode: darkmode,
+          }),
+        );
+
         // console.log("Login Success", result);
-        toast({ variant: "success", title: "Login Success", description: "Login Success" });
+        toast({ variant: "default", title: "Login Success", description: "Login Success" });
       } else {
         toast({ variant: "destructive", title: "Login Failed", description: result?.error });
         // console.log("Login Failed", result?.error);
@@ -59,7 +76,7 @@ export const SignInForm = () => {
     } catch (error) {
       // console.log(error);
       setIsLoading(false);
-      toast({ variant: "destructive", title: "Login Failed", description: error });
+      toast({ variant: "destructive", title: "Login Failed", description: error?.toString() });
     }
   };
 

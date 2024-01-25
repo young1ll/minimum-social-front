@@ -4,7 +4,7 @@ import SignupIntro from "./signup-intro";
 import SignupSubmit from "./signup-submit";
 import { SubmitSignupSchema } from "./signup-forms";
 import { cognitoSignup } from "@/lib/cognito/cognito-signup";
-import { axios_user } from "@/lib/api";
+import { axiosClient } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -57,16 +57,16 @@ const SignupPage = () => {
       // console.log({ message: "Welcome!", result, submitCognito });
 
       const submitServer = {
-        pk: result.UserSub,
+        id: result.UserSub,
         email: submitCognito.email,
         username: submitCognito.username,
         profileImage: "",
-        phone: "",
+        // phone: "",
         bio: "",
         darkmode: false,
       };
 
-      const serverResult = await axios_user.post("/user", submitServer);
+      const serverResult = await axiosClient.post("/user", submitServer);
 
       if (serverResult) {
         toast({

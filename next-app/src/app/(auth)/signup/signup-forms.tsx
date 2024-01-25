@@ -1,11 +1,18 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Loader2 } from "lucide-react";
 
 import { toast } from "@/components/ui/use-toast";
-import { axios_user } from "@/lib/api";
+import { axiosClient } from "@/lib/api";
 import { cognitoCheckUserPool } from "@/lib/cognito/cognito-signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -30,7 +37,9 @@ import { SignUpFormProps, handleSubmitFinallyType } from "../-form-types";
  * @description
  * 사용자 입력과 관련된 내용만 담당하며, submit 이외의 로직은 외부(page)에서 수행
  */
-export type SubmitSignupSchema = z.infer<typeof firstFormSchema | typeof secondFormSchema>;
+export type SubmitSignupSchema = z.infer<
+  typeof firstFormSchema | typeof secondFormSchema
+>;
 
 const firstFormSchema = z.object({
   username: z
@@ -41,7 +50,10 @@ const firstFormSchema = z.object({
     .max(32, {
       message: "Username must be less than 32 characters.",
     }),
-  email: z.string().min(1, { message: "This field has to be filled" }).email({ message: "Invalid email address" }),
+  email: z
+    .string()
+    .min(1, { message: "This field has to be filled" })
+    .email({ message: "Invalid email address" }),
 });
 
 /**
@@ -49,7 +61,11 @@ const firstFormSchema = z.object({
  * = First Form: password, check password
  * ===============================================================
  */
-export const FirstForm = ({ handleSubmitProceed, onSubmitData, submitData }: SignUpFormProps) => {
+export const FirstForm = ({
+  handleSubmitProceed,
+  onSubmitData,
+  submitData,
+}: SignUpFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof firstFormSchema>>({
@@ -67,9 +83,13 @@ export const FirstForm = ({ handleSubmitProceed, onSubmitData, submitData }: Sig
     console.log(submitData);
     try {
       // NOTE: userpool에서 email 조회
-      const checkEmailResult = await cognitoCheckUserPool({ email: submitData["email" as keyof SubmitSignupSchema] });
+      const checkEmailResult = await cognitoCheckUserPool({
+        email: submitData["email" as keyof SubmitSignupSchema],
+      });
       // TODO: user-server에서 username 조회: 예외 처리
-      const checkUsernameResult = await axios_user.get(`/user/${submitData["email" as keyof SubmitSignupSchema]}`);
+      const checkUsernameResult = await axiosClient.get(
+        `/user/${submitData["email" as keyof SubmitSignupSchema]}`,
+      );
 
       handleSubmitProceed(true);
     } catch (error) {
@@ -97,7 +117,13 @@ export const FirstForm = ({ handleSubmitProceed, onSubmitData, submitData }: Sig
                   <FormItem>
                     <FormLabel htmlFor={key}>{key.toUpperCase()}</FormLabel>
                     <FormControl>
-                      <Input id={key} type="text" placeholder={key} value={value} {...rest} />
+                      <Input
+                        id={key}
+                        type="text"
+                        placeholder={key}
+                        value={value}
+                        {...rest}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -201,7 +227,12 @@ export const SecondForm = ({
             <FormItem>
               <FormLabel htmlFor={"password"}>{"PASSWORD"}</FormLabel>
               <FormControl>
-                <Input id={"password"} type="password" placeholder={"Password"} {...field} />
+                <Input
+                  id={"password"}
+                  type="password"
+                  placeholder={"Password"}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -214,9 +245,16 @@ export const SecondForm = ({
           name={"check password"}
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor={"check_password"}>{"CONFIRM PASSWORD"}</FormLabel>
+              <FormLabel htmlFor={"check_password"}>
+                {"CONFIRM PASSWORD"}
+              </FormLabel>
               <FormControl>
-                <Input id={"check_password"} type="password" placeholder={"Confirm Password"} {...field} />
+                <Input
+                  id={"check_password"}
+                  type="password"
+                  placeholder={"Confirm Password"}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

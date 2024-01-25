@@ -23,6 +23,7 @@ const SigninPage = () => {
         {/* Sign In Form */}
         <SignInForm />
 
+        {/* TODO: Seperator */}
         <Divider lineProps={{ color: "zinc" }}>
           <span className="tw-text-zinc-500">Or</span>
         </Divider>

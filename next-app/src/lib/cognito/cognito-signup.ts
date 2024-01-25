@@ -1,7 +1,10 @@
 "use server";
 
-import { AdminGetUserCommand, SignUpCommand } from "@aws-sdk/client-cognito-identity-provider";
-import { axios_user } from "../api";
+import {
+  AdminGetUserCommand,
+  SignUpCommand,
+} from "@aws-sdk/client-cognito-identity-provider";
+import { axiosClient } from "../api";
 import { cognitoClient } from "./cognito-userpool";
 import config from "@/config";
 
@@ -11,7 +14,9 @@ interface cognitoCheckUserPoolProps {
   email: string;
 }
 
-export const cognitoCheckUserPool = async ({ email }: cognitoCheckUserPoolProps) => {
+export const cognitoCheckUserPool = async ({
+  email,
+}: cognitoCheckUserPoolProps) => {
   const command = new AdminGetUserCommand({
     UserPoolId: config.auth.cognito.userPoolId,
     Username: email,
@@ -22,7 +27,8 @@ export const cognitoCheckUserPool = async ({ email }: cognitoCheckUserPoolProps)
     return result;
   } catch (error) {
     //@ts-ignore
-    const errorName = error?.name || (error?.constructor && error.constructor.name);
+    const errorName =
+      error?.name || (error?.constructor && error.constructor.name);
     if (errorName === "UserNotFoundException") {
       return null;
     }
@@ -41,7 +47,11 @@ interface cognitoSignupProps {
  * 회원 가입 시 cognito userpool에 사용자 저장
  * 회원 가입 시 userSub을 pk로 server에 해당 사용자 저장 요청
  */
-export const cognitoSignup = async ({ username, email, password }: cognitoSignupProps) => {
+export const cognitoSignup = async ({
+  username,
+  email,
+  password,
+}: cognitoSignupProps) => {
   const command = new SignUpCommand({
     ClientId: config.auth.cognito.clientId,
     Username: email,

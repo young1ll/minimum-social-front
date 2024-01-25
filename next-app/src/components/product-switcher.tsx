@@ -71,7 +71,7 @@ const ProductSwitcher = ({ className }: ProductSwitcherProps) => {
             role="combobox"
             aria-expanded={open}
             aria-label="Choose a product"
-            className={cn("tw-w-[200px] tw-justify-between", className)}
+            className={cn("tw-w-[200px] tw-h-8 tw-justify-between", className)}
           >
             {selectedProduct.label}
           </Button>

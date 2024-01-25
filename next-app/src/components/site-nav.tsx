@@ -4,16 +4,8 @@ import { HTMLAttributes } from "react";
 
 const navitems = [
   {
-    name: "Trending",
-    href: "/trending",
-  },
-  {
-    name: "New",
-    href: "/new",
-  },
-  {
-    name: "Top",
-    href: "/top",
+    name: "Feeds",
+    href: "/feeds",
   },
 ];
 

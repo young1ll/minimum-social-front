@@ -17,6 +17,7 @@ const SignupIntro = ({ handleSubmitProceed, onSubmitData, submitData }: SignUpFo
       <CardContent className="tw-h-[450px] tw-flex tw-flex-col tw-justify-between">
         <FirstForm handleSubmitProceed={handleSubmitProceed} onSubmitData={onSubmitData} submitData={submitData} />
 
+        {/* TODO: Seperator */}
         <Divider lineProps={{ color: "zinc" }}>
           <span className="tw-text-zinc-500">Or</span>
         </Divider>
