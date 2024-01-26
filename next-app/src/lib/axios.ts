@@ -1,14 +1,8 @@
-import config from "@/config";
 import axios, { AxiosRequestHeaders } from "axios";
 import { getSession } from "next-auth/react";
 
-/**
- * Auth Server API Instance #1
- */
 export const axiosClient = axios.create({
-  // config.apiProtocol+config.apiHost
-  // backend server
-  baseURL: config.apiProtocol! + config.apiHost,
+  baseURL: "/api",
   timeout: 10000,
   timeoutErrorMessage: "Request Timeout",
   headers: {
@@ -16,10 +10,7 @@ export const axiosClient = axios.create({
   },
 });
 
-/**
- * User Server와 통신할 때 Axios Interceptor를 사용해 Header에 token 주입
- */
-export const axiosClientValidReq = axiosClient.interceptors.request.use(
+export const axiosValidRequest = axiosClient.interceptors.request.use(
   async (request) => {
     const session = await getSession();
 

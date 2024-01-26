@@ -2,7 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import CognitoProvider from "next-auth/providers/cognito";
-import { axiosClient } from "./api";
+
 import {
   AdminGetUserCommand,
   InitiateAuthCommand,
@@ -59,33 +59,44 @@ export const authOptions: NextAuthOptions = {
             }),
           );
 
-          const serverResponse = await axiosClient.get(
-            `/user/${credentials?.email}`,
-          );
-          // console.log(serverResponse.headers);
-          // console.log(serverResponse.data.user);
-
-          if (response.AuthenticationResult) {
-            const { IdToken, AccessToken, RefreshToken, ExpiresIn } =
-              response.AuthenticationResult;
-            // NOTE: 해당 값을 얻기 위해서는 반드시 서버에 데이터가 저장되어있어야 함
-            const { id, email, username, darkmode } =
-              serverResponse.data.user[0];
-
-            return {
-              id,
-              username,
-              email,
-              darkmode,
-              token: {
-                idToken: IdToken as string,
-                accessToken: AccessToken as string,
-                refreshToken: RefreshToken as string,
-                expiresIn: ExpiresIn as number,
+          const serverResponse = await fetch(
+            `http://localhost:${process.env.NEXT_PUBLIC_USER_PORT}/user?email=${credentials?.email}`,
+            {
+              method: "GET",
+              headers: {
+                ContentType: "application/json",
               },
-            };
+            },
+          );
+          if (serverResponse.ok) {
+            const responseData = await serverResponse.json();
+
+            if (response.AuthenticationResult) {
+              const { IdToken, AccessToken, RefreshToken, ExpiresIn } =
+                response.AuthenticationResult;
+              const { id, email, username, darkmode, locale } =
+                responseData.data;
+
+              return {
+                id,
+                username,
+                email,
+                darkmode,
+                locale,
+                token: {
+                  idToken: IdToken as string,
+                  accessToken: AccessToken as string,
+                  refreshToken: RefreshToken as string,
+                  expiresIn: ExpiresIn as number,
+                },
+              };
+            } else {
+              throw new Error("Invalid credentials");
+            }
           } else {
-            throw new Error("Invalid credentials");
+            throw new Error(
+              `Server response not OK. Status: ${serverResponse.status}`,
+            );
           }
         } catch (error) {
           console.error(error);

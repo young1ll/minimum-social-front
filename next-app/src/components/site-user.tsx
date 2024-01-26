@@ -7,48 +7,49 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
-import { axiosClient } from "@/lib/api";
 import { Switch } from "./ui/switch";
 import { signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { UserProps } from "@/types/next-auth";
 import { useRouter } from "next/navigation";
-import { useSelectAuth } from "@/redux/features/auth-slice";
-import UserAvatar from "./user-avatar";
 
-interface SiteUserProps {
-  id: string;
-  username: string;
-  email: string;
-  darkmode: boolean;
-}
+import { useQuery } from "@tanstack/react-query";
+import { axiosClient } from "@/lib/axios";
+
+import UserAvatar from "./user-avatar";
+import { useAuthStore } from "@/lib/zustand/store";
 
 const SiteUser = () => {
   const router = useRouter();
+  const store = useAuthStore();
 
-  const auth = useSelectAuth((state) => state.authReducer.value);
-  const { isAuthenticated, username, email, id, darkmode } = auth;
+  const { user } = store;
+  // TODO: user 가 없는 경우 SiteUser는 표시되지 않음
 
-  const [user, setUser] = useState({} as UserProps);
+  const { data: userData } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const serverResponse = await axiosClient.get(
+        `/user?email=${user?.email}`,
+      );
+    },
+  });
 
-  useEffect(() => {
-    const getUser = async () => {
-      const serverResponse = await axiosClient.get(`/user/${email}`);
-      setUser(serverResponse.data.user[0]);
-    };
-    getUser();
-  }, []);
-
+  //TODO: endpoint 수정
   const toggleDarkMode = async () => {
-    const serverResponse = await axiosClient.patch(`/user/${email}`, {
-      darkmode: !darkmode,
-    });
+    const serverResponse = await axiosClient.patch(
+      `/user?email=${user?.email}`,
+      {
+        darkmode: !user?.darkmode,
+      },
+    );
+  };
+
+  const handleLogout = async () => {
+    store.setUser(null);
+    await signOut({ callbackUrl: "/signin" });
   };
 
   return (
@@ -56,7 +57,7 @@ const SiteUser = () => {
       <DropdownMenuTrigger>
         <Button
           variant={"ghost"}
-          className="tw-relative tw-h-8 tw-w-8 tw-rounded-full tw-border"
+          className="tw-relative tw-h-10 tw-w-10 tw-rounded-full tw-border"
         >
           {/* TODO: replace with user avatar */}
           <UserAvatar />
@@ -67,10 +68,10 @@ const SiteUser = () => {
         <DropdownMenuLabel className="tw-font-normal">
           <div className="tw-flex tw-flex-col tw-space-y-1">
             <p className="tw-text-sm tw-font-medium tw-leading-none">
-              {username}
+              {user?.username}
             </p>
             <p className="tw-text-xs tw-leading-none tw-text-muted-foreground">
-              {email}
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -78,21 +79,23 @@ const SiteUser = () => {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => router.push(`/user/${username}`)}>
+          <DropdownMenuItem
+            onClick={() => router.push(`/user/${user?.username}`)}
+          >
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/user/${username}/settings`)}
+            onClick={() => router.push(`/user/${user?.username}/settings`)}
           >
             Settings
           </DropdownMenuItem>
           <DropdownMenuItem className="tw-flex tw-justify-between tw-items-center">
             Dark mode
-            <Switch checked={darkmode} onCheckedChange={toggleDarkMode} />
+            <Switch checked={user?.darkmode} onCheckedChange={toggleDarkMode} />
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

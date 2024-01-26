@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -29,8 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         >
           <div className="tw-relative tw-min-h-screen tw-flex tw-flex-col tw-bg-background">
-            <SiteHeader />
-            <main className="tw-p-2 tw-flex-1 tw-flex">{children}</main>
+            {children}
           </div>
         </Providers>
         <Toaster />

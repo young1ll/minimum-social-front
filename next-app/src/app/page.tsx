@@ -1,9 +1,6 @@
-import FeedCard from "@/components/feed-card";
-import ThrowTopicCard from "@/components/card-throw-topic";
-import { Box } from "@/components/ui/box";
 import { Container } from "@/components/ui/container";
-import FeedSeperator from "@/components/poll/feed-seperator";
-import FeedSidebar from "@/components/poll/feed-sidebar";
+import { getServerSession } from "next-auth";
+import { getSession } from "next-auth/react";
 
 /**
  * HomePage
@@ -11,11 +8,16 @@ import FeedSidebar from "@/components/poll/feed-sidebar";
  * - 비회원: 기본 기능 조회 페이지
  */
 export default async function Home() {
+  const session = await getServerSession();
   return (
-    <Container
-      size={"xl"}
-      className="!tw-px-0 tw-flex-col tw-mt-4"
-      innerContainerProps={{ className: "tw-justify-start tw-w-full" }}
-    ></Container>
+    <main className="tw-p-2 tw-flex-1 tw-flex">
+      <Container
+        size={"xl"}
+        className="!tw-px-0 tw-flex-col tw-mt-4"
+        innerContainerProps={{ className: "tw-justify-start tw-w-full" }}
+      >
+        {JSON.stringify(session)}
+      </Container>
+    </main>
   );
 }

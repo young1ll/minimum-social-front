@@ -4,7 +4,6 @@ import {
   AdminGetUserCommand,
   SignUpCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { axiosClient } from "../api";
 import { cognitoClient } from "./cognito-userpool";
 import config from "@/config";
 

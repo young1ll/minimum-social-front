@@ -8,17 +8,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { ArrowRight, Loader2 } from "lucide-react";
 
 import { toast } from "@/components/ui/use-toast";
-import { axiosClient } from "@/lib/api";
 import { cognitoCheckUserPool } from "@/lib/cognito/cognito-signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SignUpFormProps, handleSubmitFinallyType } from "../-form-types";
+import { axiosClient } from "@/lib/axios";
 
 /**
  * SignUp Form #2 #4
@@ -88,7 +88,7 @@ export const FirstForm = ({
       });
       // TODO: user-server에서 username 조회: 예외 처리
       const checkUsernameResult = await axiosClient.get(
-        `/user/${submitData["email" as keyof SubmitSignupSchema]}`,
+        `/user?email=${submitData["email" as keyof SubmitSignupSchema]}`,
       );
 
       handleSubmitProceed(true);
@@ -227,9 +227,8 @@ export const SecondForm = ({
             <FormItem>
               <FormLabel htmlFor={"password"}>{"PASSWORD"}</FormLabel>
               <FormControl>
-                <Input
+                <PasswordInput
                   id={"password"}
-                  type="password"
                   placeholder={"Password"}
                   {...field}
                 />
@@ -249,10 +248,9 @@ export const SecondForm = ({
                 {"CONFIRM PASSWORD"}
               </FormLabel>
               <FormControl>
-                <Input
-                  id={"check_password"}
-                  type="password"
-                  placeholder={"Confirm Password"}
+                <PasswordInput
+                  id={"password"}
+                  placeholder={"Password"}
                   {...field}
                 />
               </FormControl>

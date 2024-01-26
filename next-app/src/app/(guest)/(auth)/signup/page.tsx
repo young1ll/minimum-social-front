@@ -4,9 +4,9 @@ import SignupIntro from "./signup-intro";
 import SignupSubmit from "./signup-submit";
 import { SubmitSignupSchema } from "./signup-forms";
 import { cognitoSignup } from "@/lib/cognito/cognito-signup";
-import { axiosClient } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { axiosClient } from "@/lib/axios";
 
 /**
  * SignupPage #2 #4
@@ -57,11 +57,12 @@ const SignupPage = () => {
       // console.log({ message: "Welcome!", result, submitCognito });
 
       const submitServer = {
-        id: result.UserSub,
-        email: submitCognito.email,
-        username: submitCognito.username,
+        id: result.UserSub, // required
+        email: submitCognito.email, // required
+        username: submitCognito.username, // required
         profileImage: "",
         // phone: "",
+        locale: "ko",
         bio: "",
         darkmode: false,
       };

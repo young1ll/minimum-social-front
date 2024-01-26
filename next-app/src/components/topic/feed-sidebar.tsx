@@ -7,63 +7,61 @@ import {
   ChevronLeftIcon,
   DrawingPinFilledIcon,
   FileIcon,
-  GearIcon,
-  PersonIcon,
 } from "@radix-ui/react-icons";
 import UserAvatar from "../user-avatar";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { Box } from "../ui/box";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { useAuthStore } from "@/lib/zustand/store";
 
 /**
  * FeedsPage Sidebar
  */
 const FeedSidebar = () => {
   const [open, setOpen] = useState(true);
+  const { user } = useAuthStore();
 
-  const session = useSession();
-  const user = session?.data?.user;
+  const username = user?.username;
+  const email = user?.email;
 
   const feedSidebarLinks = [
     {
       key: "followings",
       icon: "Folowings:",
       value: 115,
-      href: `/user/${user?.username}/followings`,
+      href: `/user/${username}/followings`,
     },
     {
       key: "followers",
       icon: "Followers:",
       value: 210,
-      href: `/user/${user?.username}/followers`,
+      href: `/user/${username}/followers`,
     },
     {
       key: "topics",
       icon: <FileIcon />,
       value: 15,
-      href: `/user/${user?.username}/topics`,
+      href: `/user/${username}/topics`,
     },
     {
       key: "comments",
       icon: <ChatBubbleIcon />,
       value: 25,
-      href: `/user/${user?.username}/comments`,
+      href: `/user/${username}/comments`,
     },
     {
       key: "pinned",
       icon: <DrawingPinFilledIcon />,
       value: 1,
-      href: `/user/${user?.username}/pinned`,
+      href: `/user/${username}/pinned`,
     },
     {
       key: "voted",
       icon: <CardStackIcon />,
       value: 10,
-      href: `/user/${user?.username}/voted`,
+      href: `/user/${username}/voted`,
     },
   ];
 
@@ -96,10 +94,10 @@ const FeedSidebar = () => {
             />
             <div className="tw-flex tw-flex-col tw-space-y-1">
               <p className="tw-text-sm tw-font-medium tw-leading-none">
-                {"username"}
+                {username}
               </p>
               <p className="tw-text-xs tw-leading-none tw-text-muted-foreground">
-                {"email"}
+                {email}
               </p>
             </div>
           </Box>

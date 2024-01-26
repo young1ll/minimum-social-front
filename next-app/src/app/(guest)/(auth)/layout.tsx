@@ -13,7 +13,11 @@ const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect("/");
   }
   return (
-    <Container size={"xl"}>
+    <Container size={"xl"} className="tw-justify-between">
+      <h1 className="tw-text-3xl tw-font-bold tw-pb-6 tw-text-center">
+        Sign up now and vote for the world.
+      </h1>
+
       <Card className="tw-w-full tw-flex xl:tw-flex-row tw-overflow-hidden">
         <AuthWallpaper />
 

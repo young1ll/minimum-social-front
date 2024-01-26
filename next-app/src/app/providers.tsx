@@ -3,9 +3,9 @@
 import { SessionProvider, SessionProviderProps } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { ThemeProviderProps } from "next-themes/dist/types";
-import { Provider as ReduxProvider } from "react-redux";
-import React from "react";
-import { store } from "@/redux/store";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -13,13 +13,21 @@ interface ProvidersProps {
   themeProviderProps?: ThemeProviderProps;
 }
 
-const Providers = ({ children, sessionProviderProps, themeProviderProps }: ProvidersProps) => {
+const Providers = ({
+  children,
+  sessionProviderProps,
+  themeProviderProps,
+}: ProvidersProps) => {
+  const queryClient = new QueryClient();
+
   return (
-    <SessionProvider {...sessionProviderProps}>
-      <ReduxProvider store={store}>
+    <QueryClientProvider client={queryClient}>
+      <SessionProvider {...sessionProviderProps}>
         <ThemeProvider {...themeProviderProps}>{children}</ThemeProvider>
-      </ReduxProvider>
-    </SessionProvider>
+      </SessionProvider>
+
+      <ReactQueryDevtools initialIsOpen />
+    </QueryClientProvider>
   );
 };
 

@@ -2,9 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useSelectAuth } from "@/redux/features/auth-slice";
 import { VariantProps, cva } from "class-variance-authority";
 import { useSession } from "next-auth/react";
+import { useAuthStore } from "@/lib/zustand/store";
 
 const userAvatarVariants = cva("", {
   variants: {
@@ -29,14 +29,14 @@ export interface UserAvatarProps
 
 const UserAvatar = ({ className, size, ...props }: UserAvatarProps) => {
   const session = useSession();
-  const user = session.data?.user;
+  const sessionUser = session.data?.user;
 
-  const auth = useSelectAuth((state) => state.authReducer.value);
-  const { isAuthenticated, username, email, id, darkmode } = auth;
+  const { user } = useAuthStore();
+  const { username, profileImage } = user || sessionUser || {};
 
   return (
     <Avatar className={cn(userAvatarVariants({ size }), className)} {...props}>
-      <AvatarImage src={user?.profileImage} alt={username} />
+      <AvatarImage src={profileImage} alt={username} />
       <AvatarFallback>{username.slice(0, 2).toUpperCase()}</AvatarFallback>
     </Avatar>
   );

@@ -11,11 +11,11 @@ import {
 } from "@radix-ui/react-icons";
 import { cn, remainingTimeAsString } from "@/lib/utils";
 
-type PollCardFooterProps = {
+type TopicCardFooterProps = {
   expired: string;
 };
 
-const PollCardFooter = ({ expired }: PollCardFooterProps) => {
+const TopicCardFooter = ({ expired }: TopicCardFooterProps) => {
   const [expiredTime, setExpiredTime] = useState(
     remainingTimeAsString(expired),
   );
@@ -82,4 +82,4 @@ const PollCardFooter = ({ expired }: PollCardFooterProps) => {
   );
 };
 
-export default PollCardFooter;
+export default TopicCardFooter;

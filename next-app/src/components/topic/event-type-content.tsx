@@ -12,7 +12,6 @@ interface EventTypeContentProps {
 }
 const EventTypeContent = ({
   id,
-  eventTitle,
   description,
   event_date,
 }: EventTypeContentProps) => {
@@ -32,7 +31,6 @@ const EventTypeContent = ({
       >
         <Box direction={"row"} gap={2}>
           <CalendarIcon className="tw-m-0.5" />
-          <h2>{eventTitle}</h2>
         </Box>
 
         <span

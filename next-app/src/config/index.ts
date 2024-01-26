@@ -2,10 +2,9 @@ import { default as authConfig } from "./auth";
 import { default as siteConfig } from "./site";
 
 export default {
-  rootUrl: process.env.NEXTAUTH_URL,
-
-  apiProtocol: process.env.NEXT_PUBLIC_API_PROTOCOL,
-  apiHost: process.env.NEXT_PUBLIC_API_HOST,
+  rootUrl: process.env.NEXTAUTH_URL!,
+  userPort: process.env.NEXT_PUBLIC_USER_PORT!,
+  topicPort: process.env.NEXT_PUBLIC_TOPIC_PORT!,
 
   site: {
     ...siteConfig,

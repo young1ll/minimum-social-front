@@ -1,26 +1,36 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Loader2 } from "lucide-react";
 import { Input, PasswordInput } from "@/components/ui/input";
-import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { login } from "@/redux/features/auth-slice";
-import { getServerSession } from "next-auth";
 
-export type SubmitSigninSchema = z.infer<typeof signinSchema | typeof signinSchema>;
+import { getSession, signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { useAuthStore } from "@/lib/zustand/store";
+
+export type SubmitSigninSchema = z.infer<
+  typeof signinSchema | typeof signinSchema
+>;
 
 const signinSchema = z.object({
-  email: z.string().min(1, { message: "This field has to be filled" }).email({ message: "Invalid email address" }),
+  email: z
+    .string()
+    .min(1, { message: "This field has to be filled" })
+    .email({ message: "Invalid email address" }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" })
@@ -32,7 +42,8 @@ const signinSchema = z.object({
 
 export const SignInForm = () => {
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
+  const store = useAuthStore();
+  // const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
@@ -50,33 +61,54 @@ export const SignInForm = () => {
     console.log({ messages: "entered values", values });
 
     try {
-      const result = await signIn("credentials", { redirect: false, callbackUrl: "/", email, password });
+      const result = await signIn("credentials", {
+        redirect: false,
+        callbackUrl: "/feeds",
+        email,
+        password,
+      });
+
+      console.log(result);
 
       if (result?.ok) {
-        const session = await getServerSession();
-        const { id, username, email, darkmode } = session?.user;
-        dispatch(
-          login({
-            isAuthenticated: true,
-            id: id,
-            username: username,
-            email: email,
-            darkmode: darkmode,
-          }),
-        );
+        // 로그인 성공으로 저장된 세션의 정보를 global strore에 저장
+        const session = await getSession();
+        const { id, username, email, darkmode, locale, profileImage } =
+          session?.user || {};
+        store.setUser({
+          authenticated: true,
+          id,
+          username,
+          profileImage,
+          email,
+          darkmode,
+          locale,
+        });
 
         // console.log("Login Success", result);
-        toast({ variant: "default", title: "Login Success", description: "Login Success" });
+        toast({
+          variant: "default",
+          title: "Login Success",
+          description: "Login Success",
+        });
+        router.push("/feeds"); // feeds 페이지로 이동
       } else {
-        toast({ variant: "destructive", title: "Login Failed", description: result?.error });
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: result?.error,
+        });
         // console.log("Login Failed", result?.error);
       }
       setIsLoading(false);
-      router.push("/");
     } catch (error) {
       // console.log(error);
       setIsLoading(false);
-      toast({ variant: "destructive", title: "Login Failed", description: error?.toString() });
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error?.toString(),
+      });
     }
   };
 
@@ -93,7 +125,12 @@ export const SignInForm = () => {
                 <FormItem>
                   <FormLabel htmlFor={"email"}>{"Email"}</FormLabel>
                   <FormControl>
-                    <Input id={"email"} type="email" placeholder={"Email"} {...field} />
+                    <Input
+                      id={"email"}
+                      type="email"
+                      placeholder={"Email"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,7 +147,11 @@ export const SignInForm = () => {
                 <FormItem>
                   <FormLabel htmlFor={"password"}>{"Password"}</FormLabel>
                   <FormControl>
-                    <PasswordInput id={"password"} placeholder={"Password"} {...field} />
+                    <PasswordInput
+                      id={"password"}
+                      placeholder={"Password"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
