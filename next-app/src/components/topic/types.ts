@@ -1,7 +1,7 @@
 export interface CandidateItem {
   id: string;
   order: number;
-  details: string;
+  detail: string;
   elected: boolean;
   createdAt?: string;
   updatedAt?: string;

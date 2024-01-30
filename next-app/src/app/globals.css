@@ -69,5 +69,5 @@
 }
 
 .animation-wiggle {
-  animation: wiggle 0.3s ease-in-out infinite;
+  animation: wiggle 0.3s ease-in-out;
 }

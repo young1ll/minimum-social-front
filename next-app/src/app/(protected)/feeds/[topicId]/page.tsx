@@ -1,11 +1,21 @@
+import { useSearchParams } from "next/navigation";
 import React from "react";
 
 export interface FeedPageProps {
   params: { topicId: string };
+  searchParams: { edit?: string };
 }
 
 const FeedPage = (props: FeedPageProps) => {
-  return <div>FeedPage</div>;
+  const { topicId } = props.params;
+  const { edit } = props.searchParams;
+
+  return (
+    <div>
+      {topicId}
+      {edit}
+    </div>
+  );
 };
 
 export default FeedPage;

@@ -18,7 +18,7 @@ const FeedArea = () => {
   const { data, hasNextPage, fetchNextPage, status, isLoading } =
     useInfiniteQuery({
       queryKey: ["feeds"],
-      queryFn: async ({ pageParam = 1 }) => {
+      queryFn: async ({ pageParam }) => {
         const responseData = await axiosClient.get("/topic", {
           params: {
             // order: sortBy, //TODO: topic api 수정 필요
@@ -41,7 +41,9 @@ const FeedArea = () => {
     });
 
   const feeds = data?.pages.flatMap((page) => page.data) || [];
-  // const pagination = data?.pagination;
+  const hasNext = data?.pages.flatMap((page) => page.pagination.hasNextPage)[0];
+  const isLoadingInitialData = status === "pending" && data === undefined;
+  const isLoadingMore = status === "pending" && !!data && hasNextPage;
 
   useEffect(() => {
     const options = {
@@ -51,7 +53,7 @@ const FeedArea = () => {
     };
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
-      if (entry.isIntersecting && hasNextPage) {
+      if (entry.isIntersecting && hasNext) {
         fetchNextPage();
       }
     };
@@ -66,7 +68,7 @@ const FeedArea = () => {
         observer.unobserve(nextTargetRef.current);
       }
     };
-  }, [fetchNextPage, hasNextPage]);
+  }, [fetchNextPage, hasNext]);
 
   return (
     <>
@@ -77,23 +79,23 @@ const FeedArea = () => {
       />
 
       <div className="tw-gap-4 tw-columns-1 xl:tw-columns-2 tw-space-y-4">
-        {/* <div className="tw-overflow-hidden">
-          <pre>{JSON.stringify(feeds, null, 2)}</pre>
-        </div> */}
-        {isLoading ? (
+        {isLoadingInitialData ? (
           <div className="tw-flex tw-justify-center tw-w-full">
             <Loader2 className="tw-animate-spin" />
           </div>
         ) : (
-          feeds.map((f) => <SingleFeedCard key={f.id} {...f} />)
+          feeds.map((f, index) => (
+            <SingleFeedCard key={`${f.id}-${index}`} {...f} />
+          ))
         )}
-        {/* <div className="tw-overflow-hidden">{JSON.stringify(feeds)}</div> */}
-        {/* {feeds?.map((feed: Topic, index: number) => (
-        <TopicCard key={feed.id} className="tw-break-inside-avoid" {...feed} />
-      ))} */}
+        {isLoadingMore && (
+          <div className="tw-flex tw-justify-center tw-w-full">
+            <Loader2 className="tw-animate-spin" />
+          </div>
+        )}
 
         {/* {hasNextPage && <Button onClick={() => fetchNextPage()}></Button>} */}
-        {!isLoading && hasNextPage && <div ref={nextTargetRef} />}
+        {!isLoading && hasNext && <div ref={nextTargetRef} />}
       </div>
     </>
   );

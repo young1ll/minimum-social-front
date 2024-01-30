@@ -10,13 +10,14 @@ export function remainingTimeAsString(time: string) {
   const endTime = new Date(time);
 
   const diff = endTime.getTime() - currentTime.getTime();
+  const padZero = (num: number) => num.toString().padStart(2, "0");
 
   return {
     diff,
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((diff / 1000 / 60) % 60),
-    seconds: Math.floor((diff / 1000) % 60),
+    hours: padZero(Math.floor((diff / (1000 * 60 * 60)) % 24)),
+    minutes: padZero(Math.floor((diff / 1000 / 60) % 60)),
+    seconds: padZero(Math.floor((diff / 1000) % 60)),
   };
 }
 

@@ -64,6 +64,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
 import { Loader2 } from "lucide-react";
+import ThrowTopicOptionsArea from "./throw-topic-options";
 
 type PostTopicProps = Omit<
   Topic,
@@ -101,12 +102,24 @@ const typeMap = [
   },
 ];
 
+const initCandidates = [
+  {
+    order: 1 as number,
+    detail: "Approve",
+  },
+  {
+    order: 2 as number,
+    detail: "Disapprove",
+  },
+];
+
 const ThrowTopicCard = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const userId = user?.id || "";
 
-  const [optionOepn, setOptionOpen] = useState(false); // 옵션을 독립적으로 여닫기
+  const [throwOpen, setThrowOpen] = useState(false); // throwarea open/close
+
   const [title, setTitle] = useState("");
   const [startTopic, setStartTopic] = useState(false);
   const [content, setContent] = useState("");
@@ -125,18 +138,9 @@ const ThrowTopicCard = () => {
   // Event Type // TODO: 아래 옵션에 설정 추가
   const [eventDate, setEventDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
-  const [candidateItems, setCandidateItems] = useState<
-    Omit<CandidateItem, "id" | "elected">[]
-  >([
-    {
-      order: 1 as number,
-      details: "Approve",
-    },
-    {
-      order: 2 as number,
-      details: "Disapprove",
-    },
-  ]);
+  // 기본 값
+  const [candidateItems, setCandidateItems] =
+    useState<Omit<CandidateItem, "id" | "elected">[]>(initCandidates);
 
   const handleStateInitialize = () => {
     setStartTopic(false);
@@ -182,42 +186,45 @@ const ThrowTopicCard = () => {
   };
 
   const postTopic = useMutation({
-    mutationFn: (requestBody: PostTopicProps) => {
-      return axiosClient.post("/topic", requestBody);
-    },
-    onSuccess: () => {
-      postCandidates.mutate(candidateItems); // postTopic 성공 시 선택지 등록
+    mutationFn: async (requestBody: PostTopicProps) => {
+      const postTopic = await axiosClient.post("/topic", requestBody);
+      console.log({ postTopic });
 
+      const topicId = postTopic?.data?.data.topicId; // 생성된 topicId로 candidateItem 생성
+      const candidateRes = await Promise.all(
+        candidateItems.map(async (item: Partial<CandidateItem>) => {
+          await axiosClient.post("/topic/candidate", {
+            topicId: topicId,
+            ...item,
+          });
+        }),
+      );
+
+      return { postTopic, candidateRes };
+    },
+    onSuccess: async () => {
       toast({
         title: "Throw Topic Success",
         description: "토픽이 생성되었습니다.",
       });
       handleStateInitialize();
-      queryClient.invalidateQueries({ queryKey: ["topics"] });
+      setThrowOpen(false);
+      setCandidateItems(initCandidates);
+
+      await queryClient.fetchQuery({ queryKey: ["feeds"] }); // TopicList를 리로드
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "Throw Topic Failed",
-        description: "토픽 생성 중 에러 발생! 다시 시도해주세요!",
+        description: `토픽 생성 중 에러 발생! 다시 시도해주세요! ${error.message}`,
       });
     },
   });
 
-  const postCandidates = useMutation({
-    mutationFn: (requestBody: Omit<CandidateItem, "id" | "elected">[]) => {
-      return axiosClient.post("/candidate", requestBody);
-    },
-    onError: () => {
-      toast({
-        title: "Throw Candidate Failed",
-        description: "선택지 생성 중 에러 발생! 다시 시도해주세요!",
-      });
-    },
-  });
-
-  const handleThrow = () => {
-    postTopic.mutate(requestBody);
+  const handleThrow = async () => {
+    const topicResult = await postTopic.mutate(requestBody);
+    console.log({ topicResult });
   };
 
   return (
@@ -260,7 +267,7 @@ const ThrowTopicCard = () => {
             maxLength={200}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="What's on your mind?"
+            placeholder="Topic description..."
           />
           <span
             className={cn(
@@ -275,25 +282,27 @@ const ThrowTopicCard = () => {
         </div>
 
         {/* Options Area */}
-        <ThrowTopicOptionsArea
-          key={"topic-options"}
-          className={cn(
-            startTopic
-              ? "tw-h-auto tw-opacity-100 tw-mt-2"
-              : "tw-h-0 tw-opacity-0 tw-mt-0",
-            "tw-transition-all tw-duration-300",
-          )}
-          userId={userId}
-          type={type}
-          isSecretVote={isSecretVote}
-          setIsSecretVote={setIsSecretVote}
-          isResultOpen={isResultOpen}
-          setIsResultOpen={setIsResultOpen}
-          castingVote={castingVote}
-          setCastingVote={setCastingVote}
-          isMultiChoice={isMultiChoice}
-          setIsMultiChoice={setIsMultiChoice}
-        />
+        {startTopic && (
+          <ThrowTopicOptionsArea
+            key={"topic-options"}
+            className={cn(
+              startTopic
+                ? "tw-h-auto tw-opacity-100 tw-mt-2"
+                : "tw-h-0 tw-opacity-0 tw-mt-0",
+              "tw-transition-all tw-duration-300",
+            )}
+            userId={userId}
+            type={type}
+            isSecretVote={isSecretVote}
+            setIsSecretVote={setIsSecretVote}
+            isResultOpen={isResultOpen}
+            setIsResultOpen={setIsResultOpen}
+            castingVote={castingVote}
+            setCastingVote={setCastingVote}
+            isMultiChoice={isMultiChoice}
+            setIsMultiChoice={setIsMultiChoice}
+          />
+        )}
 
         <Box
           className="tw-items-start tw-w-full tw-mt-2"
@@ -352,10 +361,13 @@ const ThrowTopicCard = () => {
 
           <div className="tw-w-full tw-flex tw-justify-end">
             <CandidateArea
+              open={throwOpen}
+              setOpen={setThrowOpen}
               startTopic={startTopic}
               isPending={postTopic.isPending}
               candidateItems={candidateItems}
               setCandidateItems={setCandidateItems}
+              throwTopic={handleThrow} // topic 생성 함수
             />
           </div>
         </Box>
@@ -366,187 +378,25 @@ const ThrowTopicCard = () => {
 
 export default ThrowTopicCard;
 
-interface ThrowTopicOptionsAreaProps {
-  userId: string;
-  isSecretVote: boolean;
-  setIsSecretVote: Dispatch<SetStateAction<boolean>>;
-
-  isResultOpen: boolean;
-  setIsResultOpen: Dispatch<SetStateAction<boolean>>;
-
-  castingVote: string;
-  setCastingVote: Dispatch<SetStateAction<string>>;
-
-  isMultiChoice: boolean;
-  setIsMultiChoice: Dispatch<SetStateAction<boolean>>;
-
-  type: "poll" | "event" | string;
-}
-const ThrowTopicOptionsArea = ({
-  className,
-  userId,
-  isSecretVote,
-  setIsSecretVote,
-  isResultOpen,
-  setIsResultOpen,
-  castingVote,
-  setCastingVote,
-  isMultiChoice,
-  setIsMultiChoice,
-  type,
-}: ThrowTopicOptionsAreaProps & HTMLAttributes<HTMLDivElement>) => {
-  const [candidateId, setCandidateId] = useState<string>(userId);
-
-  const { data: idUser } = useQuery({
-    queryKey: ["castingVoteUser"],
-    queryFn: () =>
-      axiosClient.get("/user", {
-        params: {
-          id: candidateId,
-        },
-      }),
-    enabled: false,
-  });
-
-  const [castingVoteInputValue, setCastingVoteInputValue] = useState<string>(
-    idUser?.data.username,
-  );
-  const { data: usernameUser } = useQuery({
-    queryKey: ["castingVoteUser"],
-    queryFn: () =>
-      axiosClient.get("/user", {
-        params: {
-          username: castingVoteInputValue,
-        },
-      }),
-  });
-
-  return (
-    <div className={cn("tw-w-full tw-flex tw-justify-between", className)}>
-      <div className="tw-flex tw-gap-4">
-        <div className="tw-flex tw-items-center tw-space-x-2">
-          <Checkbox
-            id={"secret-vote"}
-            checked={isSecretVote}
-            onCheckedChange={() => setIsSecretVote(!isSecretVote)}
-          />
-          <label
-            htmlFor="secret-vote"
-            className="tw-text-sm tw-font-medium tw-leading-none"
-          >
-            Secret Vote
-          </label>
-        </div>
-
-        <div className="tw-flex tw-items-center tw-space-x-2">
-          <Checkbox
-            id={"result-open"}
-            checked={isResultOpen}
-            onCheckedChange={() => setIsResultOpen(!isResultOpen)}
-          />
-          <label
-            htmlFor="result-open"
-            className="tw-text-sm tw-font-medium tw-leading-none"
-          >
-            Result Open
-          </label>
-        </div>
-
-        <div className="tw-flex tw-items-center tw-space-x-2">
-          <Checkbox
-            id={"multi-choice"}
-            checked={isMultiChoice}
-            onCheckedChange={() => setIsMultiChoice(!isMultiChoice)}
-          />
-          <label
-            htmlFor="multi-choice"
-            className="tw-text-sm tw-font-medium tw-leading-none"
-          >
-            Multiple Selection
-          </label>
-        </div>
-
-        {type === "event" && (
-          <>
-            {/* TODO: Event Date, Event Location */}
-            <div className="tw-flex tw-items-center tw-space-x-2">
-              <label
-                htmlFor="event-date"
-                className="tw-text-sm tw-font-medium tw-leading-none"
-              >
-                Event Date
-              </label>
-            </div>
-
-            <div className="tw-flex tw-items-center tw-space-x-2">
-              <label
-                htmlFor="event-location"
-                className="tw-text-sm tw-font-medium tw-leading-none"
-              >
-                Event Location
-              </label>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="tw-flex tw-items-center tw-space-x-2">
-        <Dialog>
-          <TooltipProvider>
-            <Tooltip>
-              <DialogTrigger>
-                <TooltipTrigger
-                  asChild
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "icon" }),
-                    "tw-h-8 tw-w-8 tw-p-1",
-                  )}
-                >
-                  <PersonIcon />
-                </TooltipTrigger>
-              </DialogTrigger>
-              <TooltipContent>Final Decision Maker</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Final Decision Maker</DialogTitle>
-            </DialogHeader>
-            <div>
-              <Input
-                value={castingVoteInputValue}
-                onChange={(e) => setCastingVoteInputValue(e.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                variant={"default"}
-                className="!tw-bg-orange-300 hover:!tw-bg-orange-500 "
-                onClick={() => setCastingVote(usernameUser?.data.id)}
-                disabled={!usernameUser}
-              >
-                Confirm
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  );
-};
-
 const CandidateArea = ({
+  open,
+  setOpen,
   startTopic,
   isPending,
   candidateItems,
   setCandidateItems,
+  throwTopic,
 }: {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   startTopic: boolean;
   isPending: boolean;
   candidateItems: Partial<CandidateItem>[];
   setCandidateItems: Dispatch<
     SetStateAction<Omit<CandidateItem, "id" | "elected">[]>
   >;
+
+  throwTopic: () => void;
 }) => {
   const sortedCandidates = candidateItems.sort(
     (a: Partial<CandidateItem>, b: Partial<CandidateItem>) =>
@@ -556,7 +406,7 @@ const CandidateArea = ({
   const handleInputChange = (index: number, value: string) => {
     setCandidateItems((prevItems) => {
       const updatedItems = [...prevItems];
-      updatedItems[index] = { ...updatedItems[index], details: value };
+      updatedItems[index] = { ...updatedItems[index], detail: value };
       return updatedItems;
     });
   };
@@ -572,7 +422,7 @@ const CandidateArea = ({
     }
     setCandidateItems((prevItems) => [
       ...prevItems,
-      { details: "", elected: false, order: prevItems.length + 1 },
+      { detail: "", elected: false, order: prevItems.length + 1 },
     ]);
   };
 
@@ -594,7 +444,7 @@ const CandidateArea = ({
 
   const handleSubmitCandidates = () => {
     const nullItems = candidateItems.filter(
-      (item: Partial<CandidateItem>) => item.details == "",
+      (item: Partial<CandidateItem>) => item.detail == "",
     );
 
     if (nullItems.length > 0) {
@@ -604,28 +454,14 @@ const CandidateArea = ({
         description: "빈 선택지는 추가할 수 없습니다.",
       });
     } else {
-      candidateItems.forEach(
-        async (item: Partial<CandidateItem>, index: number) => {
-          try {
-            const result = await axiosClient.post("/candidate", { ...item });
-          } catch (error) {
-            console.log("error", error);
-
-            toast({
-              title: "Error",
-              variant: "destructive",
-              description: `선택지 ${index + 1}번 생성 중 에러 발생: ${error}`,
-            });
-          }
-        },
-      );
+      throwTopic();
     }
 
     console.log(candidateItems);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         disabled={!startTopic}
         // onClick={handleThrow}
@@ -648,7 +484,7 @@ const CandidateArea = ({
                 <span className="tw-text-sm">{candidate.order}</span>
                 <Input
                   key={index}
-                  value={candidate.details}
+                  value={candidate.detail}
                   onChange={(e) => handleInputChange(index, e.target.value)}
                 />
                 <Button

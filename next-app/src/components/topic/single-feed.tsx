@@ -62,10 +62,11 @@ const SingleFeedCard = ({
 }: SingleFeedProps) => {
   const renderDate = () => {
     const date =
-      createdAt === updatedAt ? new Date(createdAt) : new Date(updatedAt);
+      createdAt === updatedAt
+        ? new Date(createdAt as string)
+        : `수정됨 ${new Date(updatedAt as string)}`;
     return (
       <p className="tw-text-[11px] tw-text-zinc-500">
-        {createdAt !== updatedAt ? "수정됨 " : ""}
         {date.toLocaleString("ko-KR")}
       </p>
     );
