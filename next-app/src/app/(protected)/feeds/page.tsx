@@ -1,5 +1,4 @@
 import FeedArea from "@/components/topic/feed-area";
-import FeedSeparator from "@/components/topic/feed-separator";
 import FeedSidebar from "@/components/topic/feed-sidebar";
 import ThrowTopicCard from "@/components/topic/throw-topic";
 import { Box } from "@/components/ui/box";
@@ -18,8 +17,6 @@ const FeedPage = () => {
         <Box className="tw-flex-1 tw-overflow-hidden">
           {/* Add Topic: client component */}
           <ThrowTopicCard />
-
-          <FeedSeparator />
 
           <FeedArea />
         </Box>

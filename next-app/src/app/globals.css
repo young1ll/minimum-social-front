@@ -57,3 +57,17 @@
     @apply tw-bg-background tw-text-foreground;
   }
 }
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(1deg);
+  }
+}
+
+.animation-wiggle {
+  animation: wiggle 0.3s ease-in-out infinite;
+}

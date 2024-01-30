@@ -80,7 +80,7 @@ export const FirstForm = ({
     // console.log(values);
     setIsLoading(true);
     onSubmitData(values);
-    console.log(submitData);
+    // console.log(submitData);
     try {
       // NOTE: userpool에서 email 조회
       const checkEmailResult = await cognitoCheckUserPool({

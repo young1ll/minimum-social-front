@@ -13,8 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
+  feed,
   children,
 }: {
+  feed: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -32,6 +34,7 @@ export default function RootLayout({
             enableSystem: true,
           }}
         >
+          {feed}
           <div className="tw-relative tw-min-h-screen tw-flex tw-flex-col tw-bg-background">
             {children}
           </div>

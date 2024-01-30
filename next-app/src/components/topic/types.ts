@@ -3,8 +3,8 @@ export interface CandidateItem {
   order: number;
   details: string;
   elected: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Topic {
@@ -20,14 +20,14 @@ export interface Topic {
   view: number;
   candidateItemCount: number; // 선택지 수
   candidates?: CandidateItem[];
-  startDate: string;
-  endDate: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
+  startDate: Date | string;
+  endDate: Date | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string;
 }
 export interface EventCardProps {
-  eventDate: string;
+  eventDate: Date | string;
   eventLocation: string;
   description: string;
 }

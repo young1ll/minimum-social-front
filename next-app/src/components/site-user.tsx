@@ -1,18 +1,9 @@
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 
 import { Switch } from "./ui/switch";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { useQuery } from "@tanstack/react-query";
@@ -20,31 +11,67 @@ import { axiosClient } from "@/lib/axios";
 
 import UserAvatar from "./user-avatar";
 import { useAuthStore } from "@/lib/zustand/store";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+
+const userSettingMenu = [
+  {
+    menuName: "Profile",
+    endpoint: "",
+  },
+  {
+    menuName: "Settings",
+    endpoint: "settings",
+  },
+];
+
+const userProtectedMenu = [
+  {
+    menuName: "My Topics",
+    endpoint: "topics",
+  },
+  {
+    menuName: "Settings",
+    endpoint: "settings",
+  },
+];
 
 const SiteUser = () => {
   const router = useRouter();
   const store = useAuthStore();
+  const { data: sessionData } = useSession();
+  const [open, setOpen] = useState(false);
 
-  const { user } = store;
+  const { user } = store || sessionData || {};
   // TODO: user 가 없는 경우 SiteUser는 표시되지 않음
 
-  const { data: userData } = useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {
-      const serverResponse = await axiosClient.get(
-        `/user?email=${user?.email}`,
-      );
-    },
-  });
+  // const { data: userData } = useQuery({
+  //   queryKey: ["user"],
+  //   queryFn: async () => {
+  //     const serverResponse = await axiosClient.get(
+  //       `/user?email=${user?.email}`,
+  //     );
+  //   },
+  // });
 
   //TODO: endpoint 수정
   const toggleDarkMode = async () => {
-    const serverResponse = await axiosClient.patch(
-      `/user?email=${user?.email}`,
-      {
+    if (user) {
+      const { darkmode, ...userWithoutDarkmode } = user;
+
+      store.setUser({
         darkmode: !user?.darkmode,
-      },
-    );
+        ...userWithoutDarkmode,
+      });
+    }
+    // const serverResponse = await axiosClient.patch(
+    //   `/user?email=${user?.email}`,
+    //   {
+    //     darkmode: !user?.darkmode,
+    //   },
+    // );
   };
 
   const handleLogout = async () => {
@@ -53,52 +80,96 @@ const SiteUser = () => {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button
-          variant={"ghost"}
-          className="tw-relative tw-h-10 tw-w-10 tw-rounded-full tw-border"
-        >
-          {/* TODO: replace with user avatar */}
-          <UserAvatar />
-        </Button>
-      </DropdownMenuTrigger>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger>
+        <UserAvatar />
+      </PopoverTrigger>
 
-      <DropdownMenuContent className="tw-w-56" align="end" forceMount>
-        <DropdownMenuLabel className="tw-font-normal">
-          <div className="tw-flex tw-flex-col tw-space-y-1">
-            <p className="tw-text-sm tw-font-medium tw-leading-none">
-              {user?.username}
-            </p>
-            <p className="tw-text-xs tw-leading-none tw-text-muted-foreground">
-              {user?.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
+      <PopoverContent className="!tw-p-0">
+        <div className="tw-border-b tw-p-2">
+          <p className="tw-text-sm tw-font-medium tw-leading-none">
+            {sessionData?.user.username}
+          </p>
+          <p className="tw-text-xs tw-leading-none tw-text-muted-foreground">
+            {sessionData?.user.email}
+          </p>
+        </div>
 
-        <DropdownMenuSeparator />
+        <div className="tw-space-y-2">
+          {userSettingMenu.map(({ menuName, endpoint }) => (
+            <DropdownButton
+              key={endpoint}
+              username={user?.username as string}
+              endpoint={endpoint}
+              menuName={menuName}
+              onOpenChange={setOpen}
+            />
+          ))}
+        </div>
 
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            onClick={() => router.push(`/user/${user?.username}`)}
+        <div className="tw-border-t">
+          <div
+            className={cn(
+              buttonVariants({ variant: "ghost" }),
+              "tw-rounded-none",
+              "tw-w-full !tw-justify-between",
+            )}
           >
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => router.push(`/user/${user?.username}/settings`)}
-          >
-            Settings
-          </DropdownMenuItem>
-          <DropdownMenuItem className="tw-flex tw-justify-between tw-items-center">
             Dark mode
             <Switch checked={user?.darkmode} onCheckedChange={toggleDarkMode} />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </div>
+        </div>
+
+        <div className="tw-border-t">
+          {userProtectedMenu.map(({ menuName, endpoint }) => (
+            <DropdownButton
+              key={endpoint}
+              username={user?.username as string}
+              endpoint={endpoint}
+              menuName={menuName}
+              onOpenChange={setOpen}
+            />
+          ))}
+        </div>
+
+        <div className="tw-border-t">
+          <Button
+            variant={"ghost"}
+            className="tw-w-full tw-rounded-none !tw-justify-start"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
 export default SiteUser;
+
+const DropdownButton = ({
+  username,
+  endpoint,
+  menuName,
+  onOpenChange,
+}: {
+  username: string;
+  endpoint: string;
+  menuName: string;
+  onOpenChange?: (open: boolean) => void;
+}) => {
+  return (
+    <Link
+      className={cn(
+        buttonVariants({ variant: "ghost" }),
+        "tw-rounded-none",
+        "tw-w-full !tw-justify-start",
+      )}
+      href={`/user/${username}/${endpoint}`}
+      onClick={() => onOpenChange?.(false)}
+    >
+      {menuName}
+    </Link>
+  );
+};

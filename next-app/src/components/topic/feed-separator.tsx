@@ -10,16 +10,20 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
+import { SortByProps } from "./feed-area";
 
 /**
  * FeedsPage Separator
  */
 
-type SortByProps = "최신순" | "추천순";
-
-const FeedSeparator = () => {
-  const [sortBy, setSortBy] = useState<SortByProps>("최신순");
+const FeedSeparator = ({
+  sortBy,
+  setSortBy,
+}: {
+  sortBy: SortByProps;
+  setSortBy: Dispatch<SetStateAction<SortByProps>>;
+}) => {
   return (
     <div className="tw-flex tw-items-center tw-my-2 tw-px-1">
       <Separator className="tw-flex-1" />
@@ -34,10 +38,13 @@ const FeedSeparator = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" forceMount>
           <DropdownMenuGroup>
-            <DropdownMenuItem id="latest" onClick={() => setSortBy("최신순")}>
+            <DropdownMenuItem id="latest" onClick={() => setSortBy("latest")}>
               최신순
             </DropdownMenuItem>
-            <DropdownMenuItem id="recommend" onClick={() => setSortBy("추천순")}>
+            <DropdownMenuItem
+              id="recommend"
+              onClick={() => setSortBy("recommended")}
+            >
               추천순
             </DropdownMenuItem>
           </DropdownMenuGroup>
