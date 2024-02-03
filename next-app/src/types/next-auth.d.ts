@@ -4,6 +4,9 @@ declare module "next-auth" {
     username: string;
     email: string;
     darkmode: boolean;
+    locale: string;
+    profileImage: string;
+
     token: {
       idToken: string;
       accessToken: string;
@@ -30,6 +33,7 @@ export interface UserProps {
   username: string;
   email: string;
   darkmode: boolean;
+  locale: string;
   profileImage: string;
   token: {
     idToken: string;

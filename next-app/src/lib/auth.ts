@@ -74,13 +74,14 @@ export const authOptions: NextAuthOptions = {
             if (response.AuthenticationResult) {
               const { IdToken, AccessToken, RefreshToken, ExpiresIn } =
                 response.AuthenticationResult;
-              const { id, email, username, darkmode, locale } =
+              const { id, email, profileImage, username, darkmode, locale } =
                 responseData.data;
 
               return {
                 id,
                 username,
                 email,
+                profileImage,
                 darkmode,
                 locale,
                 token: {
@@ -129,6 +130,8 @@ export const authOptions: NextAuthOptions = {
           username: token.username,
           email: token.email,
           darkmode: token.darkmode,
+          locale: token.locale,
+          profileImage: token.profileImage,
         },
         idToken: token.idToken,
         accessToken: token.accessToken,

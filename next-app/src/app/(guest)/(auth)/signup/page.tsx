@@ -6,7 +6,6 @@ import { SubmitSignupSchema } from "./signup-forms";
 import { cognitoSignup } from "@/lib/cognito/cognito-signup";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { axiosClient } from "@/lib/axios";
 
 /**
  * SignupPage #2 #4
@@ -67,7 +66,10 @@ const SignupPage = () => {
         darkmode: false,
       };
 
-      const serverResult = await axiosClient.post("/user", submitServer);
+      const serverResult = await fetch("/user", {
+        method: "POST",
+        body: JSON.stringify(submitServer),
+      });
 
       if (serverResult) {
         toast({

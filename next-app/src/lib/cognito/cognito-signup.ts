@@ -25,8 +25,8 @@ export const cognitoCheckUserPool = async ({
     const result = await client.send(command);
     return result;
   } catch (error) {
-    //@ts-ignore
     const errorName =
+      //@ts-ignore
       error?.name || (error?.constructor && error.constructor.name);
     if (errorName === "UserNotFoundException") {
       return null;
@@ -55,7 +55,7 @@ export const cognitoSignup = async ({
     ClientId: config.auth.cognito.clientId,
     Username: email,
     Password: password,
-    // UserAttributes: [{ Name: "username", Value: username }],
+    // UserAttributes: [{ Name: "username", Value: username }], // rds user table에 저장
   });
   const result = await client.send(command);
 

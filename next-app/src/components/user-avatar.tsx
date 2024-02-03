@@ -2,20 +2,22 @@
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { VariantProps, cva } from "class-variance-authority";
-import { useSession } from "next-auth/react";
-import { useAuthStore } from "@/lib/zustand/store";
+import { cva, type VariantProps } from "class-variance-authority";
+import Link from "next/link";
 
-const userAvatarVariants = cva("", {
+const userAvatarVariants = cva("tw-font-bold", {
   variants: {
     size: {
       default: "!tw-h-8 !tw-w-8",
       xs: "!tw-h-5 !tw-w-5",
-      sm: "!tw-h-6 !tw-w-6",
+      sm: "!tw-h-6 !tw-w-6 tw-text-xs",
       lg: "!tw-h-10 !tw-w-10",
       xl: "!tw-h-12 !tw-w-12",
-      "2xl": "!tw-h-24 !tw-w-24",
-      "3xl": "!tw-h-36 !tw-w-36",
+      "2xl": "!tw-h-14 !tw-w-14",
+      "3xl": "!tw-h-20 !tw-w-20",
+      "4xl": "!tw-h-24 !tw-w-24",
+      "5xl": "!tw-h-32 !tw-w-32 tw-text-5xl",
+      "6xl": "!tw-h-36 !tw-w-36 tw-text-6xl",
     },
   },
   defaultVariants: {
@@ -23,22 +25,23 @@ const userAvatarVariants = cva("", {
   },
 });
 
-export interface UserAvatarProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof userAvatarVariants> {}
+interface UserAvatarProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof userAvatarVariants> {
+  username?: string;
+  profileImage?: string;
+}
 
-const UserAvatar = ({ className, size, ...props }: UserAvatarProps) => {
-  const session = useSession();
-  const sessionUser = session.data?.user;
-
-  const { user } = useAuthStore();
-  const { username, profileImage } = user || sessionUser || {};
+const UserAvatar = (props: UserAvatarProps) => {
+  const { username, profileImage, size, className, ...rest } = props;
 
   return (
-    <Avatar className={cn(userAvatarVariants({ size }), className)} {...props}>
-      <AvatarImage src={profileImage} alt={username} />
-      <AvatarFallback>{username?.slice(0, 2).toUpperCase()}</AvatarFallback>
-    </Avatar>
+    <Link href={`/${username}`}>
+      <Avatar className={cn(userAvatarVariants({ size }), className)} {...rest}>
+        <AvatarImage src={profileImage} alt={username} />
+        <AvatarFallback>{username?.slice(0, 2).toUpperCase()}</AvatarFallback>
+      </Avatar>
+    </Link>
   );
 };
 

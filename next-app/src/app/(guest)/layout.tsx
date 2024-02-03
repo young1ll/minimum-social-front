@@ -22,14 +22,14 @@ const GuestLayout = async ({ children }: { children: ReactNode }) => {
       >
         <p className="tw-text-sm">배울게 산더미다</p>
         <p className="tw-text-xs tw-whitespace-normal">
-          minimum-social은 이제 막 개발에 눈을 뜬, 어설픈 개발자
+          minimum-social은
           <Link
             className="tw-italic hover:tw-underline"
             href={"https://github.com/young1ll"}
           >
             (@young1ll)
           </Link>
-          의 개인 프로젝트입니다. 많은 응원과 격려 바랍니다.
+          의 학습을 위한 개인 프로젝트입니다. 많은 응원과 격려 바랍니다.
         </p>
       </div>
 

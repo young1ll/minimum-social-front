@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import * as React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DayPicker } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
 function Calendar({
   className,
@@ -20,14 +20,16 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       className={cn("tw-p-3", className)}
       classNames={{
-        months: "tw-flex tw-flex-col sm:tw-flex-row tw-space-y-4 sm:tw-space-x-4 sm:tw-space-y-0",
+        months:
+          "tw-flex tw-flex-col sm:tw-flex-row tw-space-y-4 sm:tw-space-x-4 sm:tw-space-y-0",
         month: "tw-space-y-4",
-        caption: "tw-flex tw-justify-center tw-pt-1 tw-relative tw-items-center",
+        caption:
+          "tw-flex tw-justify-center tw-pt-1 tw-relative tw-items-center",
         caption_label: "tw-text-sm tw-font-medium",
         nav: "tw-space-x-1 tw-flex tw-items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "tw-h-7 tw-w-7 tw-bg-transparent tw-p-0 tw-opacity-50 hover:tw-opacity-100"
+          "tw-h-7 tw-w-7 tw-bg-transparent tw-p-0 tw-opacity-50 hover:tw-opacity-100",
         ),
         nav_button_previous: "tw-absolute tw-left-1",
         nav_button_next: "tw-absolute tw-right-1",
@@ -39,7 +41,7 @@ function Calendar({
         cell: "tw-h-9 tw-w-9 tw-text-center tw-text-sm tw-p-0 tw-relative [&:has([aria-selected].day-range-end)]:tw-rounded-r-md [&:has([aria-selected].day-outside)]:tw-bg-accent/50 [&:has([aria-selected])]:tw-bg-accent first:[&:has([aria-selected])]:tw-rounded-l-md last:[&:has([aria-selected])]:tw-rounded-r-md focus-within:tw-relative focus-within:tw-z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "tw-h-9 tw-w-9 tw-p-0 tw-font-normal aria-selected:tw-opacity-100"
+          "tw-h-9 tw-w-9 tw-p-0 tw-font-normal aria-selected:tw-opacity-100",
         ),
         day_range_end: "tw-day-range-end",
         day_selected:
@@ -59,8 +61,8 @@ function Calendar({
       }}
       {...props}
     />
-  )
+  );
 }
-Calendar.displayName = "Calendar"
+Calendar.displayName = "Calendar";
 
-export { Calendar }
+export { Calendar };

@@ -6,9 +6,6 @@ import { Switch } from "./ui/switch";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import { useQuery } from "@tanstack/react-query";
-import { axiosClient } from "@/lib/axios";
-
 import UserAvatar from "./user-avatar";
 import { useAuthStore } from "@/lib/zustand/store";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -47,15 +44,6 @@ const SiteUser = () => {
   const { user } = store || sessionData || {};
   // TODO: user 가 없는 경우 SiteUser는 표시되지 않음
 
-  // const { data: userData } = useQuery({
-  //   queryKey: ["user"],
-  //   queryFn: async () => {
-  //     const serverResponse = await axiosClient.get(
-  //       `/user?email=${user?.email}`,
-  //     );
-  //   },
-  // });
-
   //TODO: endpoint 수정
   const toggleDarkMode = async () => {
     if (user) {
@@ -66,12 +54,6 @@ const SiteUser = () => {
         ...userWithoutDarkmode,
       });
     }
-    // const serverResponse = await axiosClient.patch(
-    //   `/user?email=${user?.email}`,
-    //   {
-    //     darkmode: !user?.darkmode,
-    //   },
-    // );
   };
 
   const handleLogout = async () => {

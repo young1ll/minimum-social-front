@@ -9,7 +9,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +20,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuthStore } from "@/lib/zustand/store";
+import LoadingCircle from "@/components/loading-circle";
 
 export type SubmitSigninSchema = z.infer<
   typeof signinSchema | typeof signinSchema
@@ -160,7 +160,7 @@ export const SignInForm = () => {
           />
 
           <Button className="tw-mt-4 tw-w-full tw-flex tw-gap-4" type="submit">
-            {isLoading ? <Loader2 className="tw-animate-spin" /> : "Sign In"}
+            {isLoading ? <LoadingCircle /> : "Sign In"}
           </Button>
         </form>
       </Form>

@@ -1,34 +1,36 @@
 import config from "@/config";
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * 서버로부터 사용자정보 가져오기
  */
+
+const userBaseUrl = `${config.serverUrl}:${config.userPort}`;
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
   const id = searchParams.get("id");
   const username = searchParams.get("username");
   const email = searchParams.get("email");
+  const type = searchParams.get("type");
 
   const params = {
     ...(id && { id }),
     ...(username && { username }),
     ...(email && { email }),
+    ...(type && { type }),
   };
 
-  const serverResponse = await axios.get(
-    `http://localhost:${config.userPort}/user`,
-    {
-      params,
-    },
-  );
+  const url = new URL(`${userBaseUrl}/user`);
+  url.search = new URLSearchParams(params).toString();
 
-  const responseData = serverResponse.data;
+  const serverResponse = await fetch(url);
+
+  const responseData = await serverResponse.json();
 
   return NextResponse.json({
-    ...responseData,
+    ...responseData.data,
   });
 }
 
@@ -37,14 +39,12 @@ export async function POST(request: NextRequest) {
 
   console.log("res", { ...res });
 
-  const serverResponse = await axios.post(
-    `http://localhost:${config.userPort}/user`,
-    {
-      ...res,
-    },
-  );
+  const serverResponse = await fetch(`${userBaseUrl}/user`, {
+    method: "POST",
+    body: { ...res },
+  });
 
-  const responseData = serverResponse.data;
+  const responseData = await serverResponse.json();
 
-  return NextResponse.json(responseData);
+  return NextResponse.json(responseData.data);
 }

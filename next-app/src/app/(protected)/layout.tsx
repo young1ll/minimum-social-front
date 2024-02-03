@@ -1,18 +1,22 @@
-import SiteHeader from "@/components/site-header";
+import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-// import { getSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
+import UserSidebar from "./user-sidebar";
 
 const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session) redirect("/signin");
 
   return (
-    <>
-      <SiteHeader />
-      <main className="tw-p-2 tw-flex-1 tw-flex">{children}</main>
-    </>
+    <div className="tw-flex tw-flex-1 tw-flex-row tw-basis-auto tw-items-stretch tw-w-full">
+      <UserSidebar />
+      <main className="tw-flex-1 tw-flex tw-flex-col tw-shrink tw-grow tw-basis-auto tw-items-start">
+        <div className="tw-w-[600px] lg:tw-w-[990px] tw-h-full tw-flex tw-flex-col tw-flex-1">
+          {children}
+        </div>
+      </main>
+    </div>
   );
 };
 

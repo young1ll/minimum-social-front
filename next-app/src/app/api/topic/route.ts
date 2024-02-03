@@ -1,6 +1,7 @@
 import config from "@/config";
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+
+const topicBaseUrl = `${config.serverUrl}:${config.topicPort}`;
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -15,15 +16,15 @@ export async function GET(request: NextRequest) {
     ...(page && { page }),
   };
 
-  const serverResponse = await axios.get(
-    `http://localhost:${config.topicPort}/topics`,
-    { params },
-  );
+  const url = new URL(`${topicBaseUrl}/topics`);
+  url.search = new URLSearchParams(params).toString();
 
-  const responseData = serverResponse.data;
+  const serverResponse = await fetch(url);
+
+  const responseData = await serverResponse.json();
 
   return NextResponse.json({
-    ...responseData,
+    ...responseData.data,
     // data: [],
   });
 }
@@ -33,15 +34,13 @@ export async function POST(request: NextRequest) {
 
   console.log("res", { ...res });
 
-  const serverResponse = await axios.post(
-    `http://localhost:${config.topicPort}/topic`,
-    {
-      ...res,
-    },
-  );
+  const serverResponse = await fetch(`${topicBaseUrl}/topic`, {
+    method: "POST",
+    body: { ...res },
+  });
 
-  const responseData = serverResponse.data;
+  const responseData = await serverResponse.json();
   // const responseData = { ...res };
 
-  return NextResponse.json(responseData);
+  return NextResponse.json(responseData.data);
 }

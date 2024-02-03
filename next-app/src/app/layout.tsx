@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config";
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/toaster";
-import SiteHeader from "@/components/site-header";
 
 // Root Metadata for all #1
 export const metadata: Metadata = {
@@ -13,10 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  feed,
+  modal,
   children,
 }: {
-  feed: React.ReactNode;
+  modal: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -34,8 +33,14 @@ export default function RootLayout({
             enableSystem: true,
           }}
         >
-          {feed}
-          <div className="tw-relative tw-min-h-screen tw-flex tw-flex-col tw-bg-background">
+          {modal}
+          <div
+            className={cn(
+              "tw-relative tw-min-h-screen",
+              "tw-flex tw-flex-1 tw-flex-col",
+              "tw-bg-background",
+            )}
+          >
             {children}
           </div>
         </Providers>

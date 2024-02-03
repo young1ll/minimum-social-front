@@ -18,7 +18,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SignUpFormProps, handleSubmitFinallyType } from "../-form-types";
-import { axiosClient } from "@/lib/axios";
 
 /**
  * SignUp Form #2 #4
@@ -87,8 +86,8 @@ export const FirstForm = ({
         email: submitData["email" as keyof SubmitSignupSchema],
       });
       // TODO: user-server에서 username 조회: 예외 처리
-      const checkUsernameResult = await axiosClient.get(
-        `/user?email=${submitData["email" as keyof SubmitSignupSchema]}`,
+      const checkUsernameResult = await fetch(
+        "/user?email=" + submitData["email" as keyof SubmitSignupSchema],
       );
 
       handleSubmitProceed(true);

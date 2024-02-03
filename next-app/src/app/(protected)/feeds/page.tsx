@@ -1,27 +1,76 @@
-import FeedArea from "@/components/topic/feed-area";
-import FeedSidebar from "@/components/topic/feed-sidebar";
-import ThrowTopicCard from "@/components/topic/throw-topic";
-import { Box } from "@/components/ui/box";
-import { Container } from "@/components/ui/container";
+import { redirect } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { GearIcon } from "@radix-ui/react-icons";
+import TagArea from "../tag-area";
+import { Separator } from "@/components/ui/separator";
+import SectionHeader from "@/components/section-header";
+import MainSection from "@/components/main-section";
+import FeedArea from "./feed-area";
+import SortTabItem from "./sort-item";
+import { Card, CardContent } from "@/components/ui/card";
+import ThrowTopic from "@/components/throw-topic/throw-topic";
 
-const FeedPage = () => {
+const sortTabs = [
+  { name: "Latest", href: "/feeds?sort=latest" },
+  { name: "Follwing", href: "/feeds?sort=follwing" },
+];
+
+export interface FeedPageProps {
+  params: { topicId: string };
+  searchParams: { sort?: string };
+}
+
+const FeedPage = (props: FeedPageProps) => {
+  const { sort } = props.searchParams;
+  if (!sort) redirect("/feeds?sort=latest");
+
   return (
-    <Container
-      size={"xl"}
-      className="tw-flex-col tw-mt-4"
-      innerContainerProps={{ className: "tw-justify-start tw-w-full" }}
-    >
-      <Box className="md:!tw-flex-row tw-gap-4">
-        <FeedSidebar />
+    <div className="tw-flex tw-flex-row tw-flex-1 tw-self-stretch">
+      {/* Add Topic: client component */}
+      <MainSection>
+        <SectionHeader className="backdrop:tw-blur-xl">
+          <div className={cn("tw-flex tw-flex-1", "tw-w-full tw-h-full")}>
+            {sortTabs.map((tab) => (
+              <SortTabItem
+                key={`sort-${tab.name}`}
+                name={tab.name}
+                href={tab.href}
+              />
+            ))}
+          </div>
 
-        <Box className="tw-flex-1 tw-overflow-hidden">
-          {/* Add Topic: client component */}
-          <ThrowTopicCard />
+          <Separator orientation="vertical" />
 
-          <FeedArea />
-        </Box>
-      </Box>
-    </Container>
+          <Button
+            className="tw-rounded-none tw-w-[53px] tw-h-[53px]"
+            size={"icon"}
+            variant={"ghost"}
+          >
+            <GearIcon className="tw-h-6 tw-w-6" />
+          </Button>
+        </SectionHeader>
+
+        {/* TODO: 컴포넌트 분리 */}
+        <div className="tw-p-4">
+          <Card
+            className={cn(
+              "tw-w-full tw-flex xl:tw-flex-row tw-overflow-hidden tw-bg-secondary",
+              // usePostTopic.isError && "animation-wiggle",
+            )}
+          >
+            <CardContent className="tw-w-full !tw-p-4">
+              <ThrowTopic />
+            </CardContent>
+          </Card>
+        </div>
+
+        <FeedArea sort={sort} />
+      </MainSection>
+
+      {/* tag area */}
+      <TagArea />
+    </div>
   );
 };
 

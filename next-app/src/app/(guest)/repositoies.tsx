@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 import React from "react";
 
-const repository = [
+export const repository = [
   {
     name: "@minimum-social-front",
     url: "https://github.com/young1ll/minimum-social-front",

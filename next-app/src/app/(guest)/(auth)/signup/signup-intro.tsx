@@ -26,6 +26,7 @@ const SignupIntro = ({
       </CardHeader>
 
       <CardContent className="tw-h-[450px] tw-flex tw-flex-col tw-justify-between">
+        {/* email과 username을 입력하는 첫번째 form */}
         <FirstForm
           handleSubmitProceed={handleSubmitProceed}
           onSubmitData={onSubmitData}

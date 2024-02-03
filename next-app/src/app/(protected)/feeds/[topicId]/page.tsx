@@ -1,6 +1,3 @@
-import { useSearchParams } from "next/navigation";
-import React from "react";
-
 export interface FeedPageProps {
   params: { topicId: string };
   searchParams: { edit?: string };

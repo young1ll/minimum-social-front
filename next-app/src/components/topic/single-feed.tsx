@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { axiosClient } from "@/lib/axios";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Box } from "../ui/box";
 import { Button, buttonVariants } from "../ui/button";
@@ -136,12 +135,10 @@ export const FeedProfileArea = ({
 }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["feed-owner"],
-    queryFn: async () =>
-      await axiosClient.get("/user", {
-        params: {
-          id: userId,
-        },
-      }),
+    queryFn: async () => {
+      const data = await fetch(`/user?id=${userId}`);
+      return data.json();
+    },
   });
 
   const user = data?.data.data;
