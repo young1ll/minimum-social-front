@@ -1,4 +1,6 @@
-import { Dispatch } from "react";
+"use client";
+
+import { Dispatch, useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -50,6 +52,12 @@ const ThrowTopicSelectsArea = (
   props: ThrowTopicSelectsAreaProps & React.HTMLAttributes<HTMLDivElement>,
 ) => {
   const { state, dispatch, className, ...rest } = props;
+  const [statusValue, setStatusValue] = useState<string>(state.status);
+
+  useEffect(() => {
+    dispatch({ type: "set", payload: { status: statusValue } });
+  }, [statusValue]);
+
   return (
     <div
       className={cn("tw-w-full tw-flex tw-justify-between", className)}
@@ -57,12 +65,11 @@ const ThrowTopicSelectsArea = (
     >
       <div className="tw-flex tw-gap-2">
         <Select
-          defaultValue={state.status}
-          onValueChange={() =>
-            dispatch({ type: "set", payload: { status: state.status } })
-          }
+          defaultValue={statusValue}
+          value={statusValue}
+          onValueChange={setStatusValue}
         >
-          <SelectTrigger className="!tw-w-[130px] tw-h-8">
+          <SelectTrigger className="!tw-w-[100px] tw-h-8">
             <SelectValue />
           </SelectTrigger>
 
@@ -73,6 +80,7 @@ const ThrowTopicSelectsArea = (
                   <CircleIcon color={status.color} />
                   <span
                     className={cn(
+                      "tw-text-xs",
                       status.color === "green"
                         ? "tw-text-green-500"
                         : status.color === "orange"
@@ -94,7 +102,7 @@ const ThrowTopicSelectsArea = (
             dispatch({ type: "set", payload: { type: state.type } })
           }
         >
-          <SelectTrigger className="!tw-w-[120px] tw-h-8">
+          <SelectTrigger className="!tw-w-[100px] tw-h-8">
             <SelectValue />
           </SelectTrigger>
 
@@ -103,7 +111,9 @@ const ThrowTopicSelectsArea = (
               <SelectItem key={type.name} value={type.name}>
                 <div className="tw-flex tw-gap-2 tw-items-center">
                   {type.icon}
-                  <span>{type.name.toLocaleUpperCase()}</span>
+                  <span className="tw-text-xs">
+                    {type.name.toLocaleUpperCase()}
+                  </span>
                 </div>
               </SelectItem>
             ))}

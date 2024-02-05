@@ -1,199 +1,249 @@
 "use client";
 
+import { renderDate } from "@/components/topic/render-date";
+import TopicMoreButton from "@/components/topic/topic-more-button";
+import { Box } from "@/components/ui/box";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/user-avatar";
+import { useTopicByTopicId } from "@/lib/query/use-topic";
+import { useUserByUsername } from "@/lib/query/use-user";
 import { cn } from "@/lib/utils";
-import {
-  CalendarIcon,
-  ChatBubbleIcon,
-  DotsHorizontalIcon,
-  DrawingPinIcon,
-  EyeOpenIcon,
-  HeartIcon,
-  PaperPlaneIcon,
-} from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
+import { CandidateItem } from "@/types/topic";
+import { CalendarIcon, CheckIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import TopicFnsArea from "./topic-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import TopicPageCommentArea from "./topic-comment";
+import { Badge } from "@/components/ui/badge";
 
-const SingleTopicPage = () => {
-  const { username, topicId } = useParams();
-
-  const getUserByUsername = async () => {
-    const url = new URL(`/api/user`);
-    url.searchParams.append("username", username as string);
-
-    const response = await fetch(url);
-    const result = await response.json();
-    return result.data;
+interface SingleTopicPageParams {
+  params: {
+    username: string;
+    topicId: string;
   };
-  const getTopicByTopicId = async () => {
-    const url = new URL(`/api/topic/detail`);
-    url.searchParams.append("id", topicId as string);
+}
 
-    const response = await fetch(url);
-    const result = await response.json();
-    return result.data;
-  };
+const SingleTopicPage = (props: SingleTopicPageParams) => {
+  const session = useSession();
 
-  const { data: userData, isLoading: isUserLoading } = useQuery({
-    queryKey: ["user", username],
-    queryFn: getUserByUsername,
-  });
-  const { data: topicData, isLoading: isTopicLoading } = useQuery({
-    queryKey: [username, "topic", topicId],
-    queryFn: getTopicByTopicId,
+  const { params } = props;
+  const { username, topicId } = params;
+  const decodedUsername = decodeURIComponent(username);
+
+  const { data: userData, isFetched: isUserDataFetched } = useUserByUsername({
+    username: username as string,
   });
 
-  const buttonList = [
-    {
-      id: "comment",
-      content: (
-        <>
-          <ChatBubbleIcon className="tw-h-5 tw-w-5" />
-          <span className="tw-ml-2">{topicData?.commentCount || 0}</span>
-        </>
-      ),
-      onClick: () => {},
-    },
-    {
-      id: "like",
-      content: (
-        <>
-          <HeartIcon className="tw-h-5 tw-w-5" />
-          <span className="tw-ml-2">{topicData?.likes || 0}</span>
-        </>
-      ),
-      onClick: () => {},
-    },
-    {
-      id: "pinned",
-      content: <DrawingPinIcon className="tw-h-5 tw-w-5" />,
-      onClick: () => {},
-    },
-    {
-      id: "share",
-      content: <PaperPlaneIcon className="tw-h-5 tw-w-5" />,
-      onClick: () => {},
-    },
-  ];
+  const { data: topicData, refetch } = useTopicByTopicId({
+    topicId: topicId as string,
+  });
+
+  const handleVoted = () => {};
 
   return (
     <div className={cn("tw-flex tw-flex-col")}>
+      {/* <pre>{JSON.stringify(userData, null, 2)}</pre> */}
+      {/* <pre>{JSON.stringify(topicData, null, 2)}</pre> */}
+
       <div className="tw-p-4">
-        <Card className="tw-relative">
-          <Button
-            className="tw-absolute tw-top-2 tw-right-2"
-            variant={"outline"}
-            size={"icon"}
-          >
-            <DotsHorizontalIcon className="tw-h-6 tw-w-6" />
-          </Button>
+        <Card className="tw-relative tw-min-h-[280px]">
+          <TopicMoreButton
+            className="!tw-mr-0 tw-absolute tw-top-2 tw-right-2"
+            userId={session.data?.user?.id}
+            topicId={topicData?.id}
+            ownerId={userData?.id}
+            ownerUsername={userData?.username}
+          />
 
           <div
             className={cn(
-              "tw-flex tw-flex-row tw-gap-2",
-              "tw-flex-1 tw-items-center",
-              "tw-p-2",
+              "tw-flex tw-flex-col",
+              "tw-flex-1",
+              "tw-px-4 tw-py-2",
             )}
           >
-            <UserAvatar
-              profileImage={userData?.profileImage}
-              username={username as string}
-              size={"2xl"}
-            />
-
-            <div className="tw-flex tw-flex-col">
-              {username ? (
-                <span className="tw-text-lg tw-font-semibold">{username}</span>
+            <div className="tw-flex tw-items-center tw-pt-2">
+              {topicData ? (
+                <h2 className="tw-text-xl">{topicData?.title}</h2>
               ) : (
-                <Skeleton className="tw-h-7 tw-w-60" />
-              )}
-              {userData?.email ? (
-                <span>{userData?.email}</span>
-              ) : (
-                <Skeleton className="tw-h-4 tw-w-32" />
+                <Skeleton className="tw-h-8 tw-w-full" />
               )}
             </div>
+
+            <Box direction={"row"} className="tw-items-center">
+              <UserAvatar
+                profileImage={userData?.profileImage}
+                username={decodedUsername}
+                size={"default"}
+              />
+
+              <div className="tw-flex tw-flex-col">
+                {isUserDataFetched ? (
+                  <span className="tw-text-sm tw-font-semibold">
+                    {decodedUsername}
+                  </span>
+                ) : (
+                  <Skeleton className="tw-h-7 tw-w-40" />
+                )}
+              </div>
+
+              <Box
+                direction={"row"}
+                gap={2}
+                className="tw-flex-1 tw-justify-end tw-text-sm tw-text-zinc-500"
+              >
+                {topicData ? (
+                  <>
+                    <Badge
+                      variant={"outline"}
+                      className={cn(
+                        topicData.status === "pending"
+                          ? "tw-text-orange-600"
+                          : topicData.status === "closed"
+                            ? "tw-text-red-600"
+                            : "tw-text-green-600",
+                      )}
+                    >
+                      {topicData.status}
+                    </Badge>
+                    <Badge variant={"outline"}>
+                      {topicData.isSecretVote ? "secret" : "open"}-vote
+                    </Badge>
+                    <Badge variant={"outline"}>
+                      {topicData.isMultiChoice ? "multi" : "single"}-choice
+                    </Badge>
+                    {topicData.resultOpen && (
+                      <Badge variant={"outline"}>result open</Badge>
+                    )}
+                  </>
+                ) : (
+                  <Skeleton className="tw-h-6 tw-w-full" />
+                )}
+              </Box>
+            </Box>
           </div>
 
           {/* feed contents */}
-          <div className="tw-mt-1 tw-px-4 tw-flex tw-flex-col tw-gap-2">
-            {topicData?.description ? (
-              <p>{topicData?.description}</p>
-            ) : (
-              <Skeleton className="tw-h-6 tw-w-full" />
-            )}
-
-            {topicData?.image ? (
-              <Image src={topicData?.image.src} alt={topicData?.image.alt} />
-            ) : (
-              <Skeleton className="tw-h-64 tw-w-full" />
-            )}
-          </div>
-
-          {/* additional info */}
-          <div className="tw-my-4 tw-px-4 tw-flex tw-gap-4 tw-text-zinc-500">
-            <div className="tw-w-1/4 tw-flex tw-gap-2">
-              <CalendarIcon />
-              {topicData?.createdAt === topicData?.updatedAt
-                ? renderDate({ date: topicData?.createdAt, isUpdated: false })
-                : renderDate({
-                    date: topicData?.updatedAt,
-                    isUpdated: true,
-                  })}
+          <Box direction={"column"} className="tw-mt-1 tw-px-4 tw-gap-2">
+            <div className="tw-my-2">
+              {topicData?.description ? (
+                <p>{topicData?.description}</p>
+              ) : (
+                <Skeleton className="tw-h-6 tw-w-full" />
+              )}
             </div>
 
-            <span className="tw-text-sm tw-flex tw-gap-2">
+            {topicData?.image && (
+              <Image src={topicData?.image.src} alt={topicData?.image.alt} />
+            )}
+
+            <Box className="tw-my-2">
+              {topicData ? (
+                topicData?.candidates.map((item: CandidateItem) => (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        key={item.id}
+                        variant={"outline"}
+                        className={cn("!tw-justify-start")}
+                        disabled={
+                          topicData?.status === "pending" ||
+                          topicData?.status === "closed"
+                        }
+                      >
+                        {item.detail}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          이 투표는 되돌릴 수 없습니다.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleVoted}>
+                          Continue
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ))
+              ) : (
+                <>
+                  <Skeleton className="tw-h-8 tw-w-full" />
+                  <Skeleton className="tw-h-8 tw-w-full" />
+                </>
+              )}
+            </Box>
+          </Box>
+
+          {/* additional info */}
+          <Box direction={"row"} gap={4} className="tw-p-4 tw-text-zinc-500">
+            <div className="tw-flex tw-gap-2 tw-items-center">
+              <CalendarIcon />
+              {topicData?.createdAt && topicData?.updatedAt ? (
+                <span>
+                  {renderDate({
+                    createdAt: topicData?.createdAt,
+                    updatedAt: topicData?.updatedAt,
+                  })}
+                </span>
+              ) : (
+                <Skeleton className="tw-h-6 tw-w-full" />
+              )}
+            </div>
+
+            <div className="tw-text-sm tw-flex tw-items-center tw-gap-2">
               <EyeOpenIcon />
-              {topicData?.view}
-            </span>
-          </div>
+              <span>{topicData?.view}</span>
+            </div>
+
+            <div className="tw-text-sm tw-flex tw-items-center tw-gap-2">
+              <CheckIcon />
+              <span>{topicData?.vetedCount}</span>
+            </div>
+
+            <div className="tw-text-xs tw-flex tw-items-center tw-gap-2">
+              <span>{renderSimpleDate(topicData?.startDate)}</span>
+              <span>~</span>
+              <span>{renderSimpleDate(topicData?.endDate)}</span>
+            </div>
+          </Box>
         </Card>
       </div>
 
-      <div className="tw-border-y tw-flex tw-justify-between">
-        {buttonList.map((button, index) => (
-          <>
-            <Button
-              key={button.id}
-              variant={"ghost"}
-              size={"icon"}
-              className="tw-w-full tw-rounded-none tw-text-zinc-500"
-            >
-              {button.content}
-            </Button>
-            {index < buttonList.length - 1 && (
-              <Separator orientation="vertical" />
-            )}
-          </>
-        ))}
-      </div>
+      <TopicFnsArea topicId={topicId} />
 
-      <div className={cn("tw-flex tw-flex-col")}></div>
+      <TopicPageCommentArea username={username} topicId={topicId} />
     </div>
   );
 };
 
 export default SingleTopicPage;
 
-export const renderDate = ({
-  date,
-  isUpdated,
-}: {
-  date?: string;
-  isUpdated: boolean;
-}) => {
-  if (!date) {
-    return <Skeleton className="tw-h-full tw-w-full" />;
-  }
-  return (
-    <span className="tw-text-sm">
-      {new Date(date).toLocaleString("ko-KR")}
-      {isUpdated && " (수정됨)"}
-    </span>
-  );
+const renderSimpleDate = (date: string) => {
+  const thisDate = new Date(date);
+
+  const year = thisDate.getFullYear();
+  const month = (thisDate.getMonth() + 1).toString().padStart(2, "0");
+  const day = thisDate.getDate().toString().padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 };

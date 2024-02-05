@@ -7,12 +7,14 @@ interface ThrowTopicTextarea {
   startWrite: boolean;
   state: ThrowTopicState;
   dispatch: Dispatch<ThrowTopicActionType>;
+  textareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 
 const ThrowTopicTextarea = (
   props: ThrowTopicTextarea & React.HTMLAttributes<HTMLDivElement>,
 ) => {
-  const { startWrite, state, dispatch, className, ...rest } = props;
+  const { startWrite, state, dispatch, className, textareaProps, ...rest } =
+    props;
   return (
     <div className={cn("tw-relative tw-w-full", className)} {...rest}>
       <Textarea
@@ -23,6 +25,7 @@ const ThrowTopicTextarea = (
           "tw-transition-all tw-duration-300",
           "tw-resize-none",
           "tw-leading-5",
+          textareaProps?.className,
         )}
         maxLength={200}
         value={state.description}

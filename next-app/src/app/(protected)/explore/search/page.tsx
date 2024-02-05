@@ -6,11 +6,11 @@ import SubSection from "@/components/sub-section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import H2 from "@/components/ui/h2";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { GearIcon } from "@radix-ui/react-icons";
 import FilterItem from "./filterItem";
+import ResultArea from "./result-area";
 
 const PeopleOptions = [
   {
@@ -40,6 +40,7 @@ export interface SearchPageProps {
 
 const SearchPage = (props: SearchPageProps) => {
   const { q } = props.searchParams;
+
   return (
     <div className="tw-flex tw-flex-row tw-flex-1 tw-self-stretch">
       <MainSection>
@@ -65,7 +66,7 @@ const SearchPage = (props: SearchPageProps) => {
           </Button>
         </SectionHeader>
 
-        <div className={cn("tw-p-4")}>{"hello"}</div>
+        <ResultArea q={q as string} />
       </MainSection>
 
       <SubSection>

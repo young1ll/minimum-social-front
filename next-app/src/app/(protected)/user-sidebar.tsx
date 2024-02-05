@@ -172,6 +172,7 @@ const UserSidebar = () => {
                           profileImage={userSession?.profileImage}
                           username={userSession?.username}
                           size={"xl"}
+                          routeUserPage={false}
                         />
                       </TooltipTrigger>
                     </PopoverTrigger>

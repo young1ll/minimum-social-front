@@ -110,6 +110,7 @@ const TagArea = () => {
       <div className="tw-flex tw-flex-row tw-flex-wrap tw-gap-x-1 tw-px-2">
         {repository.map((repo) => (
           <Link
+            key={repo.name}
             href={repo.url}
             className={cn(
               buttonVariants({ variant: "link" }),

@@ -33,6 +33,7 @@ const FilterItem = (
       <div className="tw-w-full tw-flex tw-flex-col tw-gap-2">
         {options.map((opt) => (
           <div
+            key={opt.id}
             className={cn(
               "tw-flex tw-flex-row tw-justify-between tw-items-center",
               "tw-w-full",

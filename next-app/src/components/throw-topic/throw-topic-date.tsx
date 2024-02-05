@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import { Calendar } from "../ui/calendar";
 import { ThrowTopicActionType, ThrowTopicState } from "./throw-topic";
+import { DateRange } from "react-day-picker";
 
 interface DateRangeProps {
   state: ThrowTopicState;
@@ -35,6 +36,7 @@ const ThrowDateRangePicker = ({
             variant={"outline"}
             className={cn(
               "tw-justify-start tw-h-8",
+              "tw-text-xs",
               !dateRange && "tw-text-muted-foreground",
             )}
           >
@@ -46,7 +48,7 @@ const ThrowDateRangePicker = ({
                   {format(dateRange.to, "yyyy-MM-dd")}
                 </>
               ) : (
-                format(dateRange.from, "yyyy-MM-dd")
+                <>{format(dateRange.from!, "yyyy-MM-dd")}</>
               )
             ) : (
               <span>Select Date</span>

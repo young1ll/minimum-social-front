@@ -3,8 +3,8 @@
 import LoadingCircle from "@/components/loading-circle";
 import TopicItem from "@/components/topic/topic-item";
 import { Separator } from "@/components/ui/separator";
+import { useAllTopicsInfinite } from "@/lib/query/use-topic";
 import { cn } from "@/lib/utils";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 
 interface FeedAreaProps {
@@ -17,32 +17,8 @@ const FeedArea = (
   const { sort, className, ...rest } = props;
   const nextTargetRef = useRef<HTMLDivElement | null>(null);
 
-  const getFeeds = async ({ pageParam }: { pageParam: number }) => {
-    const url = new URL(`/api/topic`);
-    url.searchParams.append("page", pageParam.toString());
-    url.searchParams.append("order", sort);
-
-    const response = await fetch(url);
-    const result = await response.json();
-    return result.data;
-  };
-
   const { data, hasNextPage, fetchNextPage, status, isLoading } =
-    useInfiniteQuery({
-      queryKey: ["feed", sort],
-      queryFn: async ({ pageParam }) => await getFeeds({ pageParam }),
-      initialPageParam: 1,
-      getNextPageParam: (lastPage) => {
-        // pageParam에 전달할 값
-        const curr = lastPage.pagination.currentPage;
-        const total = lastPage.pagination.totalPages;
-
-        if (lastPage.pagination.hasNextPage === false || curr === total) {
-          return false;
-        }
-        return curr + 1;
-      },
-    });
+    useAllTopicsInfinite({ sort });
 
   const isLoadingInitialData = status === "pending" && data === undefined;
   const feeds = data?.pages.flatMap((page) => page.data) || [];
@@ -84,7 +60,9 @@ const FeedArea = (
         ) : feeds.length ? (
           feeds.map((f) => (
             <>
-              <pre className="tw-w-full">{JSON.stringify(f, null, 2)}</pre>
+              {/* <div className="tw-m-2 tw-p-2 tw-border tw-rounded-lg">
+                <pre className="tw-w-full">{JSON.stringify(f, null, 2)}</pre>
+              </div> */}
               <TopicItem key={f.id} className="last:!tw-border-none" {...f} />
             </>
           ))

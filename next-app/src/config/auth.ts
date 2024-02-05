@@ -2,7 +2,7 @@ export default {
   nextSecret: process.env.NEXTAUTH_SECRET,
 
   cognito: {
-    region: process.env.COGNITO_REGION,
+    region: process.env.AWS_REGION,
     clientId: process.env.COGNITO_APP_CLIENT_ID,
     userPoolId: process.env.COGNITO_USER_POOL_ID,
   },

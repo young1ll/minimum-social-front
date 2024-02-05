@@ -61,9 +61,9 @@ const DisplaySettingsPage = () => {
       <div className="tw-flex tw-flex-row tw-gap-6 tw-justify-center tw-p-4">
         {colorList.map((item, index) => (
           <Button
+            key={`${item.name.toLowerCase()}-${index}`}
             className={cn("!tw-w-10 !tw-h-10")}
             size={"icon"}
-            key={`${item.name.toLowerCase()}-${index}`}
           />
         ))}
       </div>
@@ -73,8 +73,8 @@ const DisplaySettingsPage = () => {
       <div className="tw-flex tw-flex-row tw-gap-2 tw-p-4">
         {themeList.map((item, index) => (
           <Button
-            variant={"outline"}
             key={`${item.name.toLowerCase()}-${index}`}
+            variant={"outline"}
             className={cn(
               "!tw-text-lg tw-px-6 tw-w-full tw-h-full",
               user?.darkmode && item.name === "Dark"

@@ -148,6 +148,9 @@ const ThrowTopicOptionsArea = (
                   className={cn(
                     buttonVariants({ variant: "outline", size: "icon" }),
                     "tw-h-8 tw-w-8 tw-p-1",
+                    state.castingVote
+                      ? "tw-border-orange-400 tw-text-orange-400 hover:tw-border-orange-500 hover:tw-text-orange-500"
+                      : "tw-border-zinc-400 tw-text-zinc-400 hover:tw-border-zinc-500 hover:tw-text-zinc-500",
                   )}
                 >
                   <PersonIcon />

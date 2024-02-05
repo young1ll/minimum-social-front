@@ -42,7 +42,10 @@ const AccessibilityPage = () => {
         </p>
       </div>
       {accessibilityMenu.map((item) => (
-        <div className="tw-flex tw-basis-auto tw-items-stretch hover:tw-bg-accent">
+        <div
+          key={item.name}
+          className="tw-flex tw-basis-auto tw-items-stretch hover:tw-bg-accent"
+        >
           <Link
             href={item.href}
             className="tw-flex tw-justify-between tw-w-full tw-p-4 tw-min-h-12"

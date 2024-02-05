@@ -47,6 +47,7 @@ const PrivacyAndSafetyPage = () => {
       <H2>User Activity</H2>
       {privacyMenu.map((item) => (
         <SettingsItem
+          key={item.name}
           name={item.name}
           description={item.description}
           href={item.href}

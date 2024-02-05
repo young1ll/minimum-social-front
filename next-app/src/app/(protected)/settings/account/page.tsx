@@ -44,6 +44,7 @@ const AccountSettingsPage = () => {
       </div>
       {userAccountMenu.map((item) => (
         <SettingsItem
+          key={item.name}
           name={item.name}
           description={item.description}
           href={item.href}

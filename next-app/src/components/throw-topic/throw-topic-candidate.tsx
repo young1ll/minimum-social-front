@@ -141,6 +141,9 @@ const CandidateArea = ({
                     "tw-absolute tw-right-2 tw-top-1/2",
                     "-tw-translate-y-1/2",
                     "tw-h-6 tw-w-6 tw-p-1",
+                    sortedCandidates.length <= 2
+                      ? "tw-opacity-0"
+                      : "tw-opacity-100",
                   )}
                   onClick={() => handleRemoveCandidate(index)}
                 >
@@ -191,6 +194,9 @@ const CandidateArea = ({
                   "tw-absolute tw-right-2 tw-top-1/2",
                   "-tw-translate-y-1/2",
                   "tw-h-6 tw-w-6 tw-p-1",
+                  sortedCandidates.length <= 2
+                    ? "tw-opacity-0"
+                    : "tw-opacity-100",
                 )}
                 onClick={() => handleRemoveCandidate(index)}
               >

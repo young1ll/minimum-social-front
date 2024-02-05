@@ -1,17 +1,13 @@
 "use client";
 
 import { Dispatch, Reducer, useEffect, useReducer, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 
-import { Card, CardContent } from "../ui/card";
-import { toast } from "../ui/use-toast";
 import UserAvatar from "../user-avatar";
-import { Input } from "../ui/input";
 import { Box } from "../ui/box";
 
 import ThrowTopicOptionsArea from "./throw-topic-options";
@@ -20,6 +16,7 @@ import ThrowTopicTextarea from "./throw-topic-textarea";
 import CandidateArea from "./throw-topic-candidate";
 import { CandidateItem } from "@/types/topic";
 import ThrowTopicInputArea from "./throw-topic-input";
+import { useThrowTopic } from "@/lib/query/use-throw";
 
 type StatusType = "pending" | "open" | "close";
 type TypeType = "poll" | "event";
@@ -41,7 +38,6 @@ const initCandidates = [
 
 // 상태 타입 정의
 export interface ThrowTopicState {
-  throwOpen: boolean;
   title: string;
   description: string;
   // media: MediaType;
@@ -49,7 +45,7 @@ export interface ThrowTopicState {
   type: TypeType | string;
   date: DateRange | undefined;
   isSecretVote: boolean;
-  isResultOpen: boolean;
+  resultOpen: boolean;
   castingVote: string;
   isMultiChoice: boolean;
   eventDate: string;
@@ -66,7 +62,7 @@ export type ThrowTopicActionType =
   | { type: "removeCandidate"; index: number };
 
 // 리듀서 함수 정의
-const reducer: Reducer<ThrowTopicState, ThrowTopicActionType> = (
+export const reducer: Reducer<ThrowTopicState, ThrowTopicActionType> = (
   state,
   action,
 ) => {
@@ -98,7 +94,6 @@ const reducer: Reducer<ThrowTopicState, ThrowTopicActionType> = (
 };
 
 const initialState: ThrowTopicState = {
-  throwOpen: false,
   title: "",
   description: "",
   // media: {
@@ -112,7 +107,7 @@ const initialState: ThrowTopicState = {
     to: addDays(new Date(), 7),
   },
   isSecretVote: true,
-  isResultOpen: true,
+  resultOpen: true,
   castingVote: "",
   isMultiChoice: false,
   eventDate: "",
@@ -128,7 +123,6 @@ const ThrowTopic = (
   props: ThrowTopicProps & React.HTMLAttributes<HTMLDivElement>,
 ) => {
   const { isCandidateMoal = true, className } = props;
-  const queryClient = useQueryClient();
   const session = useSession();
   const user = session.data?.user;
 
@@ -144,7 +138,7 @@ const ThrowTopic = (
     status: state.status as StatusType,
     description: state.description,
     // media: state.media, // 추가 예정
-    resultOpen: state.isResultOpen,
+    resultOpen: state.resultOpen,
     isSecretVote: state.isSecretVote,
     castingVote: state.castingVote,
     isMultiChoice: state.isMultiChoice,
@@ -156,55 +150,11 @@ const ThrowTopic = (
     }),
   };
 
-  const postTopicAndCandidatesFn = async () => {
-    try {
-      const topicReq = await fetch("/topic", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-      });
-      const topicRes = await topicReq.json();
-      const topicId = topicRes?.data?.data.topicId;
-
-      if (topicId) {
-        const candidateRes = await Promise.all(
-          state.candidateItems.map(async (item: Partial<CandidateItem>) => {
-            await fetch("/topic/candidate", {
-              method: "POST",
-              body: JSON.stringify({
-                topicId: topicId,
-                ...item,
-              }),
-            });
-          }),
-        );
-
-        return { topicRes, candidateRes };
-      }
-    } catch (error) {
-      const err = error as Error;
-      throw new Error(err.message);
-    }
-  };
-
-  const usePostTopic = useMutation({
-    mutationFn: postTopicAndCandidatesFn,
-    onSuccess: async () => {
-      toast({
-        title: "Throw Topic Success",
-        description: "토픽이 생성되었습니다.",
-      });
-      dispatch({ type: "reset" });
-      setThrowOpen(false);
-
-      await queryClient.fetchQuery({ queryKey: ["feeds"] }); // TopicList를 리로드
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Throw Topic Failed",
-        description: `토픽 생성 중 에러 발생! 다시 시도해주세요! ${error.message}`,
-      });
-    },
+  const usePostTopic = useThrowTopic({
+    state,
+    dispatch,
+    requestBody,
+    setThrowOpen,
   });
 
   const handleThrow = () => {

@@ -24,23 +24,45 @@ export async function GET(request: NextRequest) {
   const responseData = await serverResponse.json();
 
   return NextResponse.json({
-    ...responseData.data,
+    ...responseData,
     // data: [],
   });
 }
 
 export async function POST(request: NextRequest) {
-  const res = await request.json();
-
-  console.log("res", { ...res });
+  const body = await request.json();
 
   const serverResponse = await fetch(`${topicBaseUrl}/topic`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
     method: "POST",
-    body: { ...res },
+    body: JSON.stringify(body),
   });
 
   const responseData = await serverResponse.json();
-  // const responseData = { ...res };
 
-  return NextResponse.json(responseData.data);
+  return NextResponse.json({
+    // ...body,
+    ...responseData,
+  });
+}
+
+export async function PUT(request: NextRequest) {
+  const body = await request.json();
+
+  const serverResponse = await fetch(`${topicBaseUrl}/topic`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+
+  const responseData = await serverResponse.json();
+
+  return NextResponse.json({
+    // ...body,
+    ...responseData,
+  });
 }

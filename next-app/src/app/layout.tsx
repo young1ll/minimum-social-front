@@ -23,6 +23,7 @@ export default function RootLayout({
       <body
         className={cn(
           "tw-min-h-screen tw-bg-background tw-font-sans tw-antialiased",
+          "selection:tw-bg-orange-500 selection:tw-text-background",
           // fontSans.className
         )}
       >

@@ -41,10 +41,9 @@ const Repositories = () => {
       "
       >
         {repository.map((repo) => (
-          <Tooltip>
+          <Tooltip key={repo.name}>
             <TooltipTrigger>
               <Link
-                key={repo.name}
                 href={repo.url}
                 className="tw-text-sm hover:tw-underline"
                 target="_blank"

@@ -5,6 +5,7 @@ export interface CandidateItem {
   elected: boolean;
   createdAt?: string;
   updatedAt?: string;
+  topicId?: string;
 }
 
 export interface Topic {
@@ -18,6 +19,7 @@ export interface Topic {
   castingVote: string; // 최종 결정권자
   resultOpen: boolean; // 결과 공개 여부
   view: number;
+  vetedCount: number;
   candidateItemCount: number; // 선택지 수
   candidates?: CandidateItem[];
   startDate: Date | string;

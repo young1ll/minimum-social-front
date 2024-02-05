@@ -36,6 +36,7 @@ const NotificationPage = () => {
       </div>
       {notificationsMenu.map((item) => (
         <SettingsItem
+          key={item.name}
           name={item.name}
           description={item.description}
           href={item.href}
