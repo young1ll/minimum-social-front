@@ -1,20 +1,5 @@
 "use client";
 
-import { renderDate } from "@/components/topic/render-date";
-import TopicMoreButton from "@/components/topic/topic-more-button";
-import { Box } from "@/components/ui/box";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import UserAvatar from "@/components/user-avatar";
-import { useTopicByTopicId } from "@/lib/query/use-topic";
-import { useUserByUsername } from "@/lib/query/use-user";
-import { cn } from "@/lib/utils";
-import { CandidateItem } from "@/types/topic";
-import { CalendarIcon, CheckIcon, EyeOpenIcon } from "@radix-ui/react-icons";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import TopicFnsArea from "./topic-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,8 +11,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import TopicPageCommentArea from "./topic-comment";
+import { renderDate } from "@/components/topic/render-date";
+import TopicMoreButton from "@/components/topic/topic-more-button";
+import { Skeleton } from "@/components/ui/skeleton";
+import UserAvatar from "@/components/user-avatar";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Box } from "@/components/ui/box";
+import { useTopicByTopicId } from "@/lib/query/use-topic";
+import { useUserByUsername } from "@/lib/query/use-user";
+import { cn } from "@/lib/utils";
+import { CandidateItem } from "@/types/topic";
+import { CalendarIcon, CheckIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
+import TopicPageCommentArea from "./topic-comment";
+import TopicFnsArea from "./topic-fns";
+import { useSession } from "next-auth/react";
 
 interface SingleTopicPageParams {
   params: {
@@ -47,7 +47,12 @@ const SingleTopicPage = (props: SingleTopicPageParams) => {
     username: username as string,
   });
 
-  const { data: topicData, refetch } = useTopicByTopicId({
+  const {
+    data: topicData,
+    isFetched,
+    isLoading,
+    refetch,
+  } = useTopicByTopicId({
     topicId: topicId as string,
   });
 
@@ -138,13 +143,13 @@ const SingleTopicPage = (props: SingleTopicPageParams) => {
 
           {/* feed contents */}
           <Box direction={"column"} className="tw-mt-1 tw-px-4 tw-gap-2">
-            <div className="tw-my-2">
-              {topicData?.description ? (
-                <p>{topicData?.description}</p>
-              ) : (
-                <Skeleton className="tw-h-6 tw-w-full" />
-              )}
-            </div>
+            {isLoading ? (
+              <Skeleton className="tw-h-6 tw-w-full" />
+            ) : isFetched && !topicData?.description ? null : (
+              <div className="tw-my-2">
+                <p>{topicData.description}</p>
+              </div>
+            )}
 
             {topicData?.image && (
               <Image src={topicData?.image.src} alt={topicData?.image.alt} />
@@ -153,10 +158,9 @@ const SingleTopicPage = (props: SingleTopicPageParams) => {
             <Box className="tw-my-2">
               {topicData ? (
                 topicData?.candidates.map((item: CandidateItem) => (
-                  <AlertDialog>
+                  <AlertDialog key={item.id}>
                     <AlertDialogTrigger asChild>
                       <Button
-                        key={item.id}
                         variant={"outline"}
                         className={cn("!tw-justify-start")}
                         disabled={

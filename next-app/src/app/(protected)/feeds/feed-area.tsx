@@ -59,12 +59,7 @@ const FeedArea = (
           <LoadingCircle />
         ) : feeds.length ? (
           feeds.map((f) => (
-            <>
-              {/* <div className="tw-m-2 tw-p-2 tw-border tw-rounded-lg">
-                <pre className="tw-w-full">{JSON.stringify(f, null, 2)}</pre>
-              </div> */}
-              <TopicItem key={f.id} className="last:!tw-border-none" {...f} />
-            </>
+            <TopicItem key={f.id} className="last:!tw-border-none" {...f} />
           ))
         ) : (
           renderNoData()

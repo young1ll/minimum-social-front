@@ -89,10 +89,9 @@ const TopicFnsArea = (props: TopicFnsAreaProps) => {
       <div className="tw-border-y tw-flex tw-justify-between">
         <TooltipProvider>
           {buttonList.map((button, index) => (
-            <Tooltip>
+            <Tooltip key={button.id}>
               <TooltipTrigger asChild>
                 <Button
-                  key={button.id}
                   variant={"ghost"}
                   size={"icon"}
                   className={cn(

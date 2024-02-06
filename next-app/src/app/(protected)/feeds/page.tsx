@@ -46,6 +46,7 @@ const FeedPage = (props: FeedPageProps) => {
             className="tw-rounded-none tw-w-[53px] tw-h-[53px]"
             size={"icon"}
             variant={"ghost"}
+            disabled
           >
             <GearIcon className="tw-h-6 tw-w-6" />
           </Button>

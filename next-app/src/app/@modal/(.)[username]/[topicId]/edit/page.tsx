@@ -16,22 +16,21 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import UserAvatar from "@/components/user-avatar";
-import { useTopicByTopicId, useUpdateTopic } from "@/lib/query/use-topic";
-import { useUserByUsername } from "@/lib/query/use-user";
-import { cn } from "@/lib/utils";
 import { CandidateItem } from "@/types/topic";
+import UserAvatar from "@/components/user-avatar";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { cn } from "@/lib/utils";
 import { addDays } from "date-fns";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Dispatch, useEffect, useReducer } from "react";
-import isEqual from "lodash/isEqual";
+import { useTopicByTopicId, useUpdateTopic } from "@/lib/query/use-topic";
 import { useUpdateCandidate } from "@/lib/query/use-candidate";
+import { useUserByUsername } from "@/lib/query/use-user";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import isEqual from "lodash/isEqual";
 
 const initialState: ThrowTopicState = {
   title: "",
@@ -68,13 +67,15 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
 
   const router = useRouter();
 
-  const queryClient = useQueryClient();
-
   const { data: userData } = useUserByUsername({
     username: props.params.username,
   });
-  const { data: topicData, isFetched } = useTopicByTopicId({
-    topicId: props.params.topicId,
+  const {
+    data: topicData,
+    isFetched,
+    refetch,
+  } = useTopicByTopicId({
+    topicId: props.params.topicId as string,
   });
 
   const { mutate: topicMutate } = useUpdateTopic();
@@ -105,12 +106,16 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
 
       dispatch({ type: "set", payload: updatedInitialState });
     }
-  }, [isFetched, topicData]);
+  }, [isFetched]);
 
   const sortedCandidates = state.candidateItems.sort(
     (a: Partial<CandidateItem>, b: Partial<CandidateItem>) =>
       (a?.order ?? 0) - (b?.order ?? 0),
   );
+
+  const handleInputChange = (index: number, value: string) => {
+    dispatch({ type: "updateCandidate", index, value });
+  };
 
   const handleAddCandidate = () => {
     if (state.candidateItems.length >= 5) {
@@ -142,6 +147,7 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
   const handleEditSubmit = () => {
     const { candidateItems, date, eventDate, eventLocation, ...restState } =
       state;
+
     const topicStates = {
       candidates: candidateItems,
       candidateItemCount: candidateItems.length,
@@ -162,11 +168,24 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
     if (isEqual(topicData, topicStates)) {
       router.back(); // nothing to do(종료)
     } else {
+      console.log({ restTopicData, restTopicStates });
+      console.log({ topicCandidates, stateCandidates });
+      console.log({ state });
+
       // 1 선택지 외 데이터 비교(Topic)
       if (!isEqual(restTopicData, restTopicStates)) {
-        topicMutate(restTopicStates, {
-          onSuccess: () => {
-            toast({ title: "Success", description: "Topic is updated." });
+        const { id: topicId, ...restTopicState } = restTopicStates;
+
+        const putTopicData = {
+          topicId,
+          ...restTopicState,
+        };
+        // "isMultiChoice must be a number conforming to the specified constraints,
+        // startDate must be a Date instance, endDate must be a Date instance"
+
+        topicMutate(putTopicData, {
+          onSuccess: (data) => {
+            console.log({ data });
           },
           onError: (error) => {
             toast({
@@ -181,15 +200,10 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
       // 2 선택지 비교(Candidates)
       if (isEqual(topicCandidates, stateCandidates)) {
         candidateMutate(
+          { candidates: state.candidateItems },
           {
-            topicId: props.params.topicId,
-            candidates: stateCandidates,
-          },
-          {
-            onSuccess: async () => {
-              await queryClient.refetchQueries({
-                queryKey: ["topics", props.params.topicId],
-              });
+            onSuccess: async (data) => {
+              console.log({ data });
             },
             onError: (error) => {
               toast({
@@ -202,6 +216,11 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
         );
       }
     }
+
+    toast({ title: "Success", description: "Topic is updated." });
+    refetch();
+
+    // router.back();
   };
 
   return (
@@ -269,7 +288,13 @@ const TopicEditModalPage = (props: TopicEditModalPageProps) => {
                       className="tw-relative tw-flex tw-gap-2 tw-items-center"
                     >
                       <span className="tw-text-sm">{candidate.order}</span>
-                      <Input key={index} value={candidate.detail} />
+                      <Input
+                        key={index}
+                        value={candidate.detail}
+                        onChange={(e) =>
+                          handleInputChange(index, e.target.value)
+                        }
+                      />
                       <Button
                         variant="destructive"
                         size={"icon"}

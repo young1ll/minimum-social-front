@@ -3,9 +3,11 @@
 import { Dispatch, Reducer, useEffect, useReducer, useState } from "react";
 import { useSession } from "next-auth/react";
 
+import { useThrowTopic } from "@/lib/query/use-throw";
+import { cn } from "@/lib/utils";
+
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";
-import { cn } from "@/lib/utils";
 
 import UserAvatar from "../user-avatar";
 import { Box } from "../ui/box";
@@ -13,10 +15,9 @@ import { Box } from "../ui/box";
 import ThrowTopicOptionsArea from "./throw-topic-options";
 import ThrowTopicSelectsArea from "./throw-topic-selects";
 import ThrowTopicTextarea from "./throw-topic-textarea";
+import ThrowTopicInputArea from "./throw-topic-input";
 import CandidateArea from "./throw-topic-candidate";
 import { CandidateItem } from "@/types/topic";
-import ThrowTopicInputArea from "./throw-topic-input";
-import { useThrowTopic } from "@/lib/query/use-throw";
 
 type StatusType = "pending" | "open" | "close";
 type TypeType = "poll" | "event";

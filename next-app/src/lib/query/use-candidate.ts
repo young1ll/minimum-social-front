@@ -1,43 +1,27 @@
+import { CandidateItem } from "@/types/topic";
 import { useMutation } from "@tanstack/react-query";
 
-interface CandidateProps {
-  candidateId: string;
-  order?: number;
-  detail?: string;
-  elected?: boolean;
-}
+type CandidateProps = Omit<CandidateItem, "id" | "elected">[];
 
 export const useUpdateCandidate = () => {
-  const putTopic = async ({
-    topicId,
-    candidates,
-  }: {
-    topicId: string;
-    candidates: CandidateProps[];
-  }) => {
+  const putTopic = async ({ candidates }: { candidates: CandidateProps }) => {
     const candidateRes = await Promise.all(
       candidates.map(async (candidate) => {
-        const { candidateId, ...restBody } = candidate;
         const response = await fetch(`/api/topic/candidate`, {
           method: "PUT",
-          body: JSON.stringify({
-            id: candidateId,
-            ...restBody,
-          }),
+          body: JSON.stringify(candidate),
         });
+        const result = await response.json();
+
+        return result;
       }),
     );
     return candidateRes;
   };
 
   const useUpdateCandidate = useMutation({
-    mutationFn: ({
-      topicId,
-      candidates,
-    }: {
-      topicId: string;
-      candidates: CandidateProps[];
-    }) => putTopic({ topicId, candidates }),
+    mutationFn: ({ candidates }: { candidates: CandidateProps }) =>
+      putTopic({ candidates }),
   });
 
   return useUpdateCandidate;

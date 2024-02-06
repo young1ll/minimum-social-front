@@ -48,6 +48,7 @@ const ThrowTopicOptionsArea = (
 
   const optionList = [
     {
+      id: "secret-vote",
       name: "Secret Vote",
       checked: state.isSecretVote,
       onChange: () =>
@@ -57,15 +58,17 @@ const ThrowTopicOptionsArea = (
         }),
     },
     {
+      id: "result-open",
       name: "Result Open",
-      checked: state.isResultOpen,
+      checked: state.resultOpen,
       onChange: () =>
         dispatch({
           type: "set",
-          payload: { isSecretVote: !state.isResultOpen },
+          payload: { isSecretVote: !state.resultOpen },
         }),
     },
     {
+      id: "multi-choice",
       name: "Multi Choice",
       checked: state.isMultiChoice,
       onChange: () =>
@@ -88,12 +91,12 @@ const ThrowTopicOptionsArea = (
             className="tw-flex tw-items-center tw-space-x-2"
           >
             <Checkbox
-              id={"secret-vote"}
+              id={option.id}
               checked={option.checked}
               onCheckedChange={option.onChange}
             />
             <label
-              htmlFor="secret-vote"
+              htmlFor={option.id}
               className="tw-text-sm tw-font-medium tw-leading-none"
             >
               {option.name}
