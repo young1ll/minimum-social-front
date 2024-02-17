@@ -39,8 +39,8 @@ const SignupIntro = ({
 
         {/* OAuth Area */}
         <Box gap={"md"} className="">
-          <Button>Github</Button>
-          <Button>Google</Button>
+          <Button disabled>Github</Button>
+          <Button disabled>Google</Button>
         </Box>
 
         <p className="tw-text-base tw-text-gray-500">
