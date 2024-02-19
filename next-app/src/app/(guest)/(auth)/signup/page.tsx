@@ -6,6 +6,7 @@ import { SubmitSignupSchema } from "./signup-forms";
 import { cognitoSignup } from "@/lib/cognito/cognito-signup";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 
 /**
  * SignupPage #2 #4
@@ -31,6 +32,14 @@ const SignupPage = () => {
 
   const { toast } = useToast();
 
+  const postUser = useMutation({
+    mutationFn: async (submitServer: any) =>
+      await fetch("/api/user", {
+        method: "POST",
+        body: JSON.stringify(submitServer),
+      }),
+  });
+
   const handleSubmitProceed = (toggle: boolean) => {
     setSubmitProceed(toggle);
   };
@@ -50,10 +59,10 @@ const SignupPage = () => {
         email: submitData["email" as keyof SubmitSignupSchema],
         password: submitData["password" as keyof SubmitSignupSchema],
       };
-      console.log(submitCognito);
+      // console.log(submitCognito);
 
       const result = await cognitoSignup(submitCognito);
-      // console.log({ message: "Welcome!", result, submitCognito });
+      console.log({ message: "Welcome!", result, submitCognito });
 
       const submitServer = {
         id: result.UserSub, // required
@@ -66,28 +75,29 @@ const SignupPage = () => {
         darkmode: false,
       };
 
-      const serverResult = await fetch("/user", {
-        method: "POST",
-        body: JSON.stringify(submitServer),
-      });
+      postUser.mutate(submitServer);
+      console.log(postUser.data);
 
-      if (serverResult) {
+      if (postUser.isSuccess) {
         toast({
           // variant: "success",
           title: "Welcome!",
           description: "You have successfully signed up.",
         });
         router.push("/signin");
+      } else if (postUser.isError) {
+        console.log(postUser.error);
       }
     } catch (error) {
       // console.log("Error during handleSubmitFinally:", error);
       toast({
         variant: "destructive",
         title: "Signup Failed",
-        description: "Please try again.",
+        description: `Please try again. ${error}`,
       });
     }
   };
+
   return (
     <>
       {!submitProceed ? (

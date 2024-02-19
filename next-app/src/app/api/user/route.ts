@@ -10,6 +10,8 @@ const userBaseUrl = `${config.serverUrl}:${config.userPort}`;
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
+  console.log({ userBaseUrl });
+
   const id = searchParams.get("id");
   const username = searchParams.get("username");
   const email = searchParams.get("email");
@@ -38,6 +40,8 @@ export async function GET(request: NextRequest) {
 // 새로운 사용자 생성
 export async function POST(request: NextRequest) {
   const body = await request.json();
+  console.log({ userBaseUrl });
+  console.log(JSON.stringify(body));
 
   const serverResponse = await fetch(`${userBaseUrl}/user`, {
     headers: {

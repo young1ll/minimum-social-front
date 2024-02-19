@@ -12,6 +12,8 @@ export async function GET(
   const url = new URL(`${topicBaseUrl}/topic`);
   url.search = new URLSearchParams({ topicId }).toString();
 
+  console.log({ url });
+
   const serverResponse = await fetch(url);
   const responseData = await serverResponse.json();
 

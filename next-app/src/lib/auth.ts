@@ -62,6 +62,7 @@ export const authOptions: NextAuthOptions = {
           const serverResponse = await fetch(
             // `http://localhost:${process.env.NEXT_PUBLIC_USER_PORT}/user?email=${credentials?.email}`,
             `${config.serverUrl}:${config.userPort}/user?email=${credentials?.email}`,
+            // `/api/user?email=${credentials?.email}`,
             {
               method: "GET",
               headers: {

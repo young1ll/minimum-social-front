@@ -25,7 +25,7 @@ const TestAccountModal = () => {
         <AlertDialogTitle>Test Account</AlertDialogTitle>
 
         <AlertDialogDescription className="tw-space-y-2">
-          <Input value={"tester@test.com"} />
+          <Input value={"tester@minimum-social.com"} />
           <PasswordInput value={"TESt0123@"} />
         </AlertDialogDescription>
 
