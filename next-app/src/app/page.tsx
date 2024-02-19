@@ -1,19 +1,17 @@
-import SignoutButton from "@/components/test/signout";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
+/**
+ * HomePage
+ * - 회원: feeds page로 이동
+ * - 비회원: 회원 가입 페이지로 이동
+ */
 export default async function Home() {
-  // 서버사이드 세션
   const session = await getServerSession(authOptions);
-
-  const { user } = session || {};
-
-  return (
-    <main className="">
-      <pre>{JSON.stringify(session, null, 2)}</pre>
-      {session ? <SignoutButton /> : <Link href={"/signin"}>로그인</Link>}
-    </main>
-  );
+  if (!session) {
+    redirect("/signin");
+  } else {
+    redirect("/feeds");
+  }
 }

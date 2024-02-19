@@ -1,16 +1,19 @@
 "use server";
 
-import { CognitoUserPool } from "amazon-cognito-identity-js";
+import config from "@/config";
+import { CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-provider";
 
 const poolData = {
-  UserPoolId: process.env.COGNITO_USER_POOL_ID as string,
-  ClientId: process.env.COGNITO_APP_CLIENT_ID as string,
+  UserPoolId: config.auth.cognito.userPoolId,
+  ClientId: config.auth.cognito.clientId,
+  Region: config.auth.cognito.region,
 };
 
 if (!poolData.UserPoolId || !poolData.ClientId) {
   throw new Error("Missing Cognito pool data");
 }
 
-export const createUserPool = async () => {
-  return new CognitoUserPool(poolData);
-};
+export const cognitoClient = () =>
+  new CognitoIdentityProviderClient({
+    region: poolData.Region, //optional
+  });

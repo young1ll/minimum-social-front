@@ -86,7 +86,7 @@ public class CognitoHostingStack extends Stack {
                     put("version", "1.0");
                     put("applications", List.of(new LinkedHashMap<>() {
                       {
-                        put("appRoot", "next-app"); // NOTE: mono-repo
+                        put("appRoot", "next-app"); // NOTE: mono-repo root
                         put("frontend", new LinkedHashMap<>() {
                           {
                             put("buildPath", "next-app");
@@ -94,12 +94,20 @@ public class CognitoHostingStack extends Stack {
                               {
                                 put("preBuild", new LinkedHashMap<>() {
                                   {
-                                    put("commands", List.of("npm ci")); // clean install
+                                    put("commands", List.of("npm -g install pnpm"));
+                                    // clean install
                                   }
                                 });
                                 put("build", new LinkedHashMap<>() {
                                   {
-                                    put("commands", List.of("npm run build",
+                                    put("commands", List.of(
+                                        // node_modules hoisted
+                                        // "pnpm config set node-linker hoisted",
+                                        // packages 설치
+                                        "pnpm i",
+                                        // build
+                                        // "pnpm --filter next-app build",
+                                        "pnpm run build",
                                         "echo \"NEXTAUTH_SECRET=NL0O++ZnW42XdHgLrsxMqvT20M08VkZgPmxfMeAP260=\" >> .env.production",
                                         """
                                                 if ["$AWS_BRANCH" = "main"]; then
@@ -108,6 +116,7 @@ public class CognitoHostingStack extends Stack {
                                                     echo "NEXTAUTH_URL=https://dev.${AWS_APP_ID}.amplifyapp.com/" >> .env.production
                                                 fi
                                             """,
+                                        // 자동으로 위 스택에서 설정한 userPoolId, userPoolClientId 가져오기
                                         "echo \"COGNITO_USER_POOL_ID=" + userPool.getUserPoolId()
                                             + "\" >> .env.production",
                                         "echo \"COGNITO_APP_CLIENT_ID="
@@ -144,9 +153,9 @@ public class CognitoHostingStack extends Stack {
     amplifyApp.addEnvironment("COGNITO_USER_POOL_ID", userPool.getUserPoolId())
         .addEnvironment("COGNITO_APP_CLIENT_ID", client.getUserPoolClientId())
         .addEnvironment("_CUSTOM_IMAGE", "amplify:al2023") // nextjs 14
-        .addEnvironment("_LIVE_UPDATEs",
+        .addEnvironment("_LIVE_UPDATES",
             "[{\"pkg\":\"next-version\",\"type\":\"internal\",\"version\":\"latest\"}]")
-        .addEnvironment("AMPLIFY_MONOREPO_APP", "next-app"); // mono-repo
+        .addEnvironment("AMPLIFY_MONOREPO_APP_ROOT", "next-app"); // mono-repo
 
     Branch main = amplifyApp.addBranch("main", BranchOptions.builder().stage("PRODUCTION").build());
     Branch develop = amplifyApp.addBranch("develop",
