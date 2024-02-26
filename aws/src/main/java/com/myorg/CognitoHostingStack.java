@@ -155,7 +155,11 @@ public class CognitoHostingStack extends Stack {
         .addEnvironment("_CUSTOM_IMAGE", "amplify:al2023") // nextjs 14
         .addEnvironment("_LIVE_UPDATES",
             "[{\"pkg\":\"next-version\",\"type\":\"internal\",\"version\":\"latest\"}]")
-        .addEnvironment("AMPLIFY_MONOREPO_APP_ROOT", "next-app"); // mono-repo
+        .addEnvironment("AMPLIFY_MONOREPO_APP_ROOT", "next-app") // mono-repo
+        .addEnvironment("NEXT_PUBLIC_SERVER_URL", "").addEnvironment("NEXT_PUBLIC_USER_PORT", "")
+        .addEnvironment("NEXT_PUBLIC_TOPIC_PORT", "").addEnvironment("S3_AWS_ACCESS_KEY", "")
+        .addEnvironment("S3_AWS_SECRET_KEY", "").addEnvironment("S3_AWS_REGION", "")
+        .addEnvironment("S3_BUCKET_NAME", "").addEnvironment("NEXT_PUBLIC_CLOUDFRONT_URL", "");
 
     Branch main = amplifyApp.addBranch("main", BranchOptions.builder().stage("PRODUCTION").build());
     Branch develop = amplifyApp.addBranch("develop",
