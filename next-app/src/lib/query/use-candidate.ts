@@ -1,3 +1,4 @@
+import config from "@/config";
 import { CandidateItem } from "@/types/topic";
 import { useMutation } from "@tanstack/react-query";
 
@@ -7,7 +8,7 @@ export const useUpdateCandidate = () => {
   const putTopic = async ({ candidates }: { candidates: CandidateProps }) => {
     const candidateRes = await Promise.all(
       candidates.map(async (candidate) => {
-        const response = await fetch(`/api/topic/candidate`, {
+        const response = await fetch(`${config.rootUrl}/api/topic/candidate`, {
           method: "PUT",
           body: JSON.stringify(candidate),
         });

@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useUserByUserId = ({ userId }: { userId: string }) => {
   const getUserByUserId = async () => {
-    const response = await fetch(`/api/user?id=${userId}`);
+    const response = await fetch(`${config.rootUrl}/api/user?id=${userId}`);
     const result = await response.json();
 
     return result[0];
@@ -25,7 +25,7 @@ export const useUserByUsername = ({ username }: { username: string }) => {
     // url.searchParams.append("username", username);
 
     // const url = `${config.rootUrl}/api/user?username=${username}`;
-    const url = `/api/user?username=${username}`;
+    const url = `${config.rootUrl}/api/user?username=${username}`;
     const response = await fetch(url);
     const result = await response.json();
 
@@ -42,7 +42,9 @@ export const useUserByUsername = ({ username }: { username: string }) => {
 
 export const useUserTopicCountByUserId = ({ userId }: { userId: string }) => {
   const getUserTopicCounts = async () => {
-    const response = await fetch(`/api/topic/count?userId=${userId}`);
+    const response = await fetch(
+      `${config.rootUrl}/api/topic/count?userId=${userId}`,
+    );
     const result = await response.json();
     return result;
   };
@@ -65,7 +67,7 @@ export const useUpdateUser = ({
   const queryClient = useQueryClient();
 
   const updateUser = async (data: Partial<User>) => {
-    const url = `/api/user?id=${userId}`;
+    const url = `${config.rootUrl}/api/user?id=${userId}`;
     try {
       const userUpdateRes = await fetch(url, {
         headers: {

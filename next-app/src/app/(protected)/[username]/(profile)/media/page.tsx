@@ -1,5 +1,6 @@
 "use client";
 import LoadingCircle from "@/components/loading-circle";
+import config from "@/config";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -9,7 +10,7 @@ const UserProfileMediaPage = () => {
   const user = session.data?.user;
 
   const getMediaByUserId = async () => {
-    const url = new URL(`/api/user`);
+    const url = new URL(`${config.rootUrl}/api/user`);
     url.searchParams.append("type", "media");
 
     const response = await fetch(url);

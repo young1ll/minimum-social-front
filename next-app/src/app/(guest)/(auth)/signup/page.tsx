@@ -7,6 +7,7 @@ import { cognitoSignup } from "@/lib/cognito/cognito-signup";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
+import config from "@/config";
 
 /**
  * SignupPage #2 #4
@@ -34,7 +35,7 @@ const SignupPage = () => {
 
   const postUser = useMutation({
     mutationFn: async (submitServer: any) =>
-      await fetch("/api/user", {
+      await fetch(`${config.rootUrl}/api/user`, {
         method: "POST",
         body: JSON.stringify(submitServer),
       }),
@@ -62,7 +63,7 @@ const SignupPage = () => {
       // console.log(submitCognito);
 
       const result = await cognitoSignup(submitCognito);
-      console.log({ message: "Welcome!", result, submitCognito });
+      console.log({ message: "Cognito Success!", result, submitCognito });
 
       const submitServer = {
         id: result.UserSub, // required

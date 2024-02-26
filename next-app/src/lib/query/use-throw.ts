@@ -3,6 +3,7 @@ import {
   ThrowTopicState,
 } from "@/components/throw-topic/throw-topic";
 import { toast } from "@/components/ui/use-toast";
+import config from "@/config";
 import { CandidateItem } from "@/types/topic";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dispatch } from "react";
@@ -22,7 +23,7 @@ export const useThrowTopic = ({
 
   const postTopicAndCandidatesFn = async () => {
     try {
-      const topicReq = await fetch("/api/topic", {
+      const topicReq = await fetch(`${config.rootUrl}/api/topic`, {
         method: "POST",
         body: JSON.stringify(requestBody),
       });
@@ -34,7 +35,7 @@ export const useThrowTopic = ({
         if (topicId) {
           const candidateRes = await Promise.all(
             state.candidateItems.map(async (item: Partial<CandidateItem>) => {
-              await fetch("/api/topic/candidate", {
+              await fetch(`${config.rootUrl}/api/topic/candidate`, {
                 method: "POST",
                 body: JSON.stringify({
                   topicId: topicId,

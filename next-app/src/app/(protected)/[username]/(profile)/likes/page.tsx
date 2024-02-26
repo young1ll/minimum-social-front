@@ -1,4 +1,5 @@
 "use client";
+import config from "@/config";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -8,7 +9,7 @@ const UserProfileLikesPage = () => {
   const user = session.data?.user;
 
   const getLikesByUserId = async () => {
-    const url = new URL(`/api/user`);
+    const url = new URL(`${config.rootUrl}/api/user`);
     url.searchParams.append("type", "likes");
 
     const response = await fetch(url);

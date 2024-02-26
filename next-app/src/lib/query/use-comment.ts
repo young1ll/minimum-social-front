@@ -1,3 +1,4 @@
+import config from "@/config";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 
 export const usePostComment = () => {
@@ -14,7 +15,7 @@ export const usePostComment = () => {
 
 export const useGetCommentsInfinite = ({ topicId }: { topicId: string }) => {
   const getAllComments = async (pageParam: number) => {
-    const url = `/api/topic/${topicId}/comments`;
+    const url = `${config.rootUrl}/api/topic/${topicId}/comments`;
     const response = await fetch(url);
     const result = await response.json();
 

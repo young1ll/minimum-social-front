@@ -1,4 +1,5 @@
 "use client";
+import config from "@/config";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -8,7 +9,7 @@ const UserProfileVotedPage = () => {
   const user = session.data?.user;
 
   const getVotedByUserId = async () => {
-    const url = new URL(`/api/topic/vote`);
+    const url = new URL(`${config.rootUrl}/api/topic/vote`);
     url.searchParams.append("userId", user?.id as string);
 
     const response = await fetch(url);

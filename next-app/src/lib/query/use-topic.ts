@@ -1,9 +1,10 @@
+import config from "@/config";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useAllTopicsInfinite = ({ sort }: { sort: string }) => {
   const getAllFeeds = async (pageParam: number) => {
     const response = await fetch(
-      `/api/topic?page=${pageParam}&order=${sort === "latest" ? "desc" : "asc"}`,
+      `${config.rootUrl}/api/topic?page=${pageParam}&order=${sort === "latest" ? "desc" : "asc"}`,
     );
     const result = await response.json();
 
@@ -34,7 +35,7 @@ export const useUserTopicsInfiniteByUserId = ({
   userId: string;
 }) => {
   const getTopicsByUserId = async (pageParam: number) => {
-    const url = `/api/topic?userId=${userId}&page=${pageParam}`;
+    const url = `${config.rootUrl}/api/topic?userId=${userId}&page=${pageParam}`;
 
     const response = await fetch(url);
     return response.json();
@@ -60,7 +61,7 @@ export const useUserTopicsInfiniteByUserId = ({
 
 export const useTopicByTopicId = ({ topicId }: { topicId: string }) => {
   const getTopicByTopicId = async () => {
-    const url = `/api/topic/${topicId}`;
+    const url = `${config.rootUrl}/api/topic/${topicId}`;
 
     const response = await fetch(url);
     const result = await response.json();
@@ -77,7 +78,9 @@ export const useTopicByTopicId = ({ topicId }: { topicId: string }) => {
 
 export const useTopicVotedByTopicId = ({ topicId }: { topicId: string }) => {
   const getVotedByTopicId = async () => {
-    const response = await fetch(`/api/topic/${topicId}/voted`);
+    const response = await fetch(
+      `${config.rootUrl}/api/topic/${topicId}/voted`,
+    );
     const result = await response.json();
 
     return result.data;
@@ -111,7 +114,7 @@ interface requestBodyProps {
 }
 export const useUpdateTopic = () => {
   const putTopic = async (body: requestBodyProps) => {
-    const response = await fetch(`/api/topic`, {
+    const response = await fetch(`${config.rootUrl}/api/topic`, {
       method: "PUT",
       body: JSON.stringify(body),
     });

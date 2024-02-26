@@ -16,6 +16,7 @@ import { repository } from "@/app/(guest)/repositoies";
 import Link from "next/link";
 import SearchInput from "@/components/input-search";
 import TrendCard from "../trend-card";
+import config from "@/config";
 
 const ExplorePage = () => {
   const session = useSession();
@@ -23,7 +24,7 @@ const ExplorePage = () => {
 
   //TODO: api 작성...
   const getTopTrends = async () => {
-    const url = new URL(`/api/topic`);
+    const url = new URL(`${config.rootUrl}/api/topic`);
     url.searchParams.append("userId", user?.id as string);
 
     const response = await fetch(url);

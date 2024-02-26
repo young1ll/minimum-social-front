@@ -16,7 +16,7 @@ const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
   }
   return (
     <Container size={"xl"} className="tw-justify-between">
-      <TestAccountModal className="tw-absolute tw-top-5 tw-right-5" />
+      <TestAccountModal className="tw-absolute tw-top-10 tw-right-5" />
       <h1 className="tw-text-3xl tw-font-bold tw-text-center">
         Sign up now and vote for the world.
       </h1>

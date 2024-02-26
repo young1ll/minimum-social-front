@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import LoadingCircle from "@/components/loading-circle";
+import config from "@/config";
 
 const PinnedPage = () => {
   const session = useSession();
@@ -16,7 +17,7 @@ const PinnedPage = () => {
 
   //TODO: api 작성...
   const getPinnedByUserId = async () => {
-    const url = new URL(`/api/topic`);
+    const url = new URL(`${config.rootUrl}/api/topic`);
     url.searchParams.append("userId", user?.id as string);
 
     const response = await fetch(url);

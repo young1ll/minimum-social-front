@@ -1,3 +1,4 @@
+import config from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 
@@ -6,7 +7,7 @@ const DevUserListPage = () => {
   const username = query.get("username");
 
   const getTopicsByUserId = async () => {
-    const url = new URL(`/api/topic`);
+    const url = new URL(`${config.rootUrl}/api/topic`);
     url.searchParams.append("username", username as string);
 
     const response = await fetch(url);
