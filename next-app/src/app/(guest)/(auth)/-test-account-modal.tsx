@@ -11,12 +11,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input, PasswordInput } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
-const TestAccountModal = () => {
+interface Props {
+  className?: string;
+}
+
+const TestAccountModal = ({ className }: Props) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={"destructive"} className="tw-my-4">
+        <Button variant={"destructive"} className={cn(className)}>
           테스트 계정 확인
         </Button>
       </AlertDialogTrigger>
